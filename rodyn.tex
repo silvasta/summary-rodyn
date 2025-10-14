@@ -1,0 +1,86 @@
+% Needed  for babelfont
+%! TeX program = lualatex
+%-----------------------------------------------------------------
+
+%-----------------------------------------------------------------
+% Document Type
+%-----------------------------------------------------------------
+% \documentclass[layout=summary, columns=4,secnumdepth=2,tight]{sst-custom}
+\documentclass[layout=preview,secnumdepth=2,tight]{sst-custom}
+%-----------------------------------------------------------------
+
+%-----------------------------------------------------------------
+% experimental
+	%----------------------------------------------------------------
+% \usepackage{setspace}
+%--------------\--------------------------------------------------
+\begin{document}
+
+\iftoggle{do-multicol}{ \begin{multicols*}{\numcolumns}}{}
+		%-----------------------------------------------------------------
+		% %%% Debug
+		% Column width is: \the\columnwidth\\
+		% Preview width is: \the\previewwidth
+		%-----------------------------------------------------------------
+		\input{title/title-blue-grey.tex}
+		%-----------------------------------------------------------------
+		\iftoggle{use-small-font}{\footnotesize}{}
+		%-----------------------------------------------------------------
+		\tableofcontents
+		%-----------------------------------------------------------------
+
+		%-----------------------------------------------------------------
+		% TODO: Mathematical Definitions etc
+
+		\section{Kinematics}
+		\input{topics/kinematics.tex}
+		%-----------------------------------------------------------------
+		\subsection{Exercise 1b}
+		$$
+			_\mathcal{I} \mathbf{w}_\mathcal{E}
+			=
+			\begin{bmatrix}
+				_\mathcal{I} \mathbf{v}_\mathcal{E} \\
+				_\mathcal{I} \mathbf{\omega}_\mathcal{E}
+			\end{bmatrix}
+		$$
+		%-----------------------------------------------------------------
+		\section{Dynamics}
+		%-----------------------------------------------------------------
+		\section{Legged Robot}
+		%-----------------------------------------------------------------
+		\section{Rotorcraft}
+		%-----------------------------------------------------------------
+		\section{Fixed-Wing}
+		%-----------------------------------------------------------------
+
+		% %-----------------------------------------------------------------
+		% \input{old_topics/requirements-mpc.tex}
+		% %-----------------------------------------------------------------
+		% \section{Introduction to Systems and Controls}
+		% \input{old_topics/models-and-systems.tex}
+		% %-----------------------------------------------------------------
+		% \section{Optimization}
+		% \input{old_topics/optimization.tex}
+		% %-----------------------------------------------------------------
+		% \section{Optimal Control}
+		% \input{old_topics/optimal-control.tex}
+		% %-----------------------------------------------------------------
+		% \section{Invariance}
+		% \input{old_topics/invariance.tex}
+		% %-----------------------------------------------------------------
+		% \section{Nominal MPC}
+		% \input{old_topics/nominal-mpc.tex}
+		% %-----------------------------------------------------------------
+		% \section{Practical MPC}
+		% \input{old_topics/practical-mpc.tex}
+		% %-----------------------------------------------------------------
+		% \section{Robust MPC}
+		% \input{old_topics/robust-mpc.tex}
+		% %-----------------------------------------------------------------
+		% \section{Implementation}
+		% \input{old_topics/implementation.tex}
+		%-----------------------------------------------------------------
+		\iftoggle{do-multicol}{\end{multicols*}}{}
+
+\end{document}
