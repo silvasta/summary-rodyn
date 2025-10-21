@@ -1,0 +1,68 @@
+% TODO: import .md
+
+\section{Lecture 6 - Introduction Dynamic Control}
+
+\subsection{Position vs. Torque Controlled Robot Arms}
+
+% TODO: images position/torque control
+
+\subsection{Joint Impedance and Inverse Dynamics Control}
+
+\subsubsection{Joint Impedance Control}
+
+- Formula
+
+- Formula with Gravity compensation
+
+\subsubsection{Inverse Dynamics Control}
+
+\textbf{Compensate for system dynamics + PD law on acceleration}
+
+% TODO: copy different formulas
+
+- every joint behaves like decoupled mass-spring damper
+
+- Eigenfrequency
+
+- Damping
+
+\subsubsection{Task-space dynamics control}
+
+- single task: just use pseudo-inverse
+
+- multiple task: stack $J_i,w_i$, pseudo-inverse, done (equal priority)
+
+\subsection{Task-space Dynamics Control}
+
+% TODO: look at "big picture so far"
+
+- end-effector dynamics
+
+- end-effector motion control
+
+- trajectory control (feedforwad term)
+
+\subsection{Interaction Control}
+
+\subsubsection{Operational Space Control}
+
+- $F_c$ as contact force
+
+\subsubsection{Selection Matrix}
+
+- seperate motion and force directions
+
+% TODO: check selection matrix
+
+% HACK: Operational Space Control - FINAL big picture? P.26
+
+\subsection{Inverse Dynamics as QP}
+
+- use: some sort of “mass-matrix weighted pseudo-inverse”
+
+- quadratic optimization
+
+% TODO: check Least Square Optimization
+
+- Solving set of QPs
+
