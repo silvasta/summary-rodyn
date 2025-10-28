@@ -316,7 +316,6 @@
 \newtheorem{remark}{Remark}
 \newtheorem{lemma}{Lemma}
 %-----------------------------------------------------------------
-\newcommand{\T}{^\textnormal{\scriptsize T}}%TODO: replace with proper T
 \DeclareMathOperator{\argmin}{argmin}
 \DeclareMathOperator{\dom}{dom}
 \DeclareMathOperator{\pre}{pre}

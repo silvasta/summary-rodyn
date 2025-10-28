@@ -1,20 +1,52 @@
 \subsection{Vectors and Positions}
 
-some definitions
-
-parametrizations
+Parametrizations
 
 \subsection{Linear Velocity}
 
-transfomations
+\[
+  \begin{aligned}
+    r       & = r(\chi)
+    \\
+    \dot{r} & = \frac{\partial r}{\partial \chi}\dot{\chi}
+    = E_p(\chi)\dot{\chi}
+\end{aligned}\]
 
 \subsection{Rotations}
 
-% TODO: Rotation Matrix C_AB
-%
+\[
+  _\mathcal{A}r_{AP}
+  = C_{\mathcal{A}\mathcal{B}}
+  \cdot _\mathcal{B}r_{AP}
+\]
+
+% TODO: aexb...
+\[
+  C_{\mathcal{A}\mathcal{B}} =
+\]
+
+\[
+  C_{\mathcal{A}\mathcal{C}} =
+  C_{\mathcal{A}\mathcal{B}}
+  \cdot
+  C_{\mathcal{B}\mathcal{C}}
+\]
 - elementary rotatons
 
-% TODO: homogenous transfomations
+% TODO: formulas
+
+- homogenous transfomations
+
+\[
+  T_{\mathcal{A}\mathcal{B}} =
+  \begin{bmatrix}
+    C_{\mathcal{A}\mathcal{B}} & _\mathcal{A}r_{AP}
+    \\
+    0_{1\times 3}              & 1
+  \end{bmatrix}
+\]
+
+- passive and active rotation
 
 \subsection{Angular Velocity}
 
@@ -22,21 +54,173 @@ transfomations
 
 % WARN: Notation recap L2.3
 
-\subsection{Parametrization of 3d rotations}
+\subsection{Parametrization of 3d Rotations}
+
+\begin{itemize}
+  \item Rotation matrix
+    \begin{itemize}
+      \item $3 \times 3 = 9$ parameters
+      \item Orthonormality $= 6$ constraints
+    \end{itemize}
+  \item Euler angles
+  \item Angle axis
+  \item Rotation vector
+  \item Unit quaternions
+    \begin{itemize}
+      \item 4 parameters
+      \item no singularity, unitary constraints
+    \end{itemize}
+\end{itemize}
 
 \subsection{Euler angles}
 
-euler <> rotation matrix
+- Consecutive elementary rotations
+
+% AI: euler <> rotation matrix
 
 \subsection{angle axis and rotation vector}
 
 \subsection{Unit Quaternions}
 
-Quaternions <> rotation matrix
+% AI: Quaternions <> rotation matrix
 
 \subsection{Algebra with Quaternions}
 
+- product
+
+- rotating vector
+
+% AI: Quaternions math, rust
 
 \subsection{Time Derivatives and Rotational Velocity}
 
+- problem with singularities, use Quaternions
 
+\subsection{Multi Body Kinematics}
+
+Generalized coordinates
+\[
+  q =
+  \begin{pmatrix}
+    q1 \\ \vdots \\ q_n
+  \end{pmatrix}
+\]
+
+End-effector configuration parameters
+
+\[
+  \chi_e =
+  \begin{pmatrix}
+    \chi_{eP} \\ \chi_{eR}
+  \end{pmatrix}
+\]
+
+Operational space coordinates
+
+\[
+  \chi_o =
+  \begin{pmatrix}
+    \chi_{oP} \\ \chi_{oR}
+  \end{pmatrix}
+\]
+
+\subsection{Kinematics of Systems of Bodies}
+
+% HACK: L3.13 picture!
+
+- Joint space
+
+- Task space
+
+\subsection{Forward Kinematics}
+
+$$
+\chi_e = \chi_e(q)
+$$
+
+use multiplied transfomation matrix $T_{IE}$
+
+\begin{sstTitleBox}[ForestGreen]{{
+      \subsection{Jacobians}
+  }}
+  \begin{sstOnlyFrame}[ForestGreen]
+    $$
+    \dot{\chi_e} =
+    J_{eA}(q)\dot{q}
+    $$
+  \end{sstOnlyFrame}
+  \begin{sstOnlyFrame}[ForestGreen]
+    $$
+    J_{eA} =
+    \frac{\partial \chi_e}{\partial q_1} =
+    \begin{bmatrix}
+      \frac{\partial \chi_1}{\partial q_1}
+      & \dots  &
+      \frac{\partial \chi_1}{\partial q_n}
+      \\
+      \vdots & \ddots & \vdots
+      \\
+      \frac{\partial \chi_m}{\partial q_1}
+      & \dots  &
+      \frac{\partial \chi_m}{\partial q_n}
+    \end{bmatrix}
+    $$
+  \end{sstOnlyFrame}
+  TODO: geometric, algebraic L3.21
+\end{sstTitleBox}
+
+\subsection{Velocity in Moving Bodies}
+
+% TODO: definitions
+
+- Rigid body formulation
+
+ArAP = ArAB + [AwAB]*CAB*BrBP
+
+vP = vB + Om x rBP
+
+\subsection{Jacobians for Prismatic Joint}
+
+- Position
+
+- Rotation
+
+\subsection{Inverse Kinematics}
+
+\[
+  w_e^\star = J_{e0} \dot{q}
+\]
+
+Things to take into account:
+
+- Singularities
+
+- Redundancy
+
+% HACK: section pseudoinverse??
+
+- Nullspace of matrix
+
+\subsection{Multi-task control}
+
+% TODO: definitions
+
+- singel Task
+
+- Stacked Task
+
+- Priorization
+
+\subsubsection{Error analysis}
+
+\textbf{Mapping associated with the Jacobian}
+
+Joint space <=> Task space
+
+\subsection{Trajectory control}
+
+% WARN: formula q star, r star
+
+\subsection{Velocity in Moving Bodies}
+
+% TODO: check and compare with that before
