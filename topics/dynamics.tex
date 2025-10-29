@@ -1,22 +1,105 @@
-% TODO: import .md
 
-\section{Lecture 6 - Introduction Dynamic Control}
+\begin{sstTitleBox}{
+    Equations of Motion
+  }
+  \begin{sstOnlyFrame}
+    \[
+      M(q)\ddot{q} +
+      b(q,\dot{q}) +
+      g(q) =
+      \tau +
+      J_c^T F_c
+    \]
+  \end{sstOnlyFrame}
 
-\subsection{Position vs. Torque Controlled Robot Arms}
+  \begin{sstOnlyFrame}
+    \begin{align*}
+      & M(q)         &  & \text{Mass matrix}                     \\
+      & \ddot{q}     &  & \text{Generalized coordinates}         \\
+      & b(q,\dot{q}) &  & \text{Centrifugal and Coriolis forces} \\
+      & g(q)         &  & \text{Gravity forces}                  \\
+      & \tau         &  & \text{Generalized forces}              \\
+      & F_c          &  & \text{External forces}                 \\
+      & J_c          &  & \text{Contact Jacobian}                \\
+    \end{align*}
+  \end{sstOnlyFrame}
+\end{sstTitleBox}
 
-% TODO: images position/torque control
+\section{Principle of Virtual Work}
+- Principle of virtual work (D’Alembert’s Principle)
 
-\subsection{Joint Impedance and Inverse Dynamics Control}
+- Dynamic equilibrium imposes zero virtual work (for all virtual displacements)
+
+- Newton’s law for every particle in direction it can move
+
+\section{Single  Rigid Body}
+
+% TODO: check Single Rigid Body,also with kinematics
+
+\section{Newton-Euler Method}
+
+% AI: short description
+
+\section{Projected Newton-Euler}
+
+Principle of virtual work for multi-body systems
+
+% TODO: L5.21 table
+
+% WARN: EoM Definition L5.22
+
+\section{Lagrange II}
+
+- Kinetic energy
+
+- Potential energy
+
+% TODO: check formula L5.26
+
+\section{External Forces and Torques}
+
+% TODO: layout
+
+\begin{align*}
+  \textbf{Forces}     \tau_{F_{ext}} & = \sum_{j=1}^{n_{f,ext}}
+  J_{P,j}^T T_{ext,k}
+  \\
+  \textbf{Torques}    \tau_{T_{ext}} & = \sum_{k=1}^{n_{m,ext}}
+  J_{R,k}^T T_{ext,k}
+  \\
+  \textbf{Actuators}  \tau_{a,k}     & = (J_{S_k} - J_{S_{k-1}})^T
+  F_{a,k} + (J_{R_k} - J_{R_{k-1}})^T T_{a,k}
+\end{align*}
+
+\section{Velocity in Moving Bodies}
+
+- Definitions
+
+- Moving Frame
+
+\section{Prismatic Joints}
+
+TODO: Jacobians
+
+- Position Jacobian
+
+- Rotation Jacobian
+
+- Example
+
+\section{Dynamic Control}
+
+% TODO: images position/torque control L6.6
 
 \subsubsection{Joint Impedance Control}
 
-- Formula
+% TODO: Formula
 
-- Formula with Gravity compensation
+% HACK: Formula with Gravity compensation
 
 \subsubsection{Inverse Dynamics Control}
 
-\textbf{Compensate for system dynamics + PD law on acceleration}
+Compensate for system dynamics + PD law on acceleration
 
 % TODO: copy different formulas
 
@@ -26,35 +109,38 @@
 
 - Damping
 
-\subsubsection{Task-space dynamics control}
+\section{Task-space Dynamics control}
 
 - single task: just use pseudo-inverse
 
+% WARN: formula Task-space dynamics control
+
 - multiple task: stack $J_i,w_i$, pseudo-inverse, done (equal priority)
 
-\subsection{Task-space Dynamics Control}
+\subsection{End-effector dynamics}
 
-% TODO: look at "big picture so far"
-
-- end-effector dynamics
+% TODO: formula
 
 - end-effector motion control
 
 - trajectory control (feedforwad term)
 
-\subsection{Interaction Control}
+\section{Interaction Control}
 
-\subsubsection{Operational Space Control}
+\subsection{Operational Space Control}
 
+Generalized framework to control motion and force
+
+% TODO: formula
 - $F_c$ as contact force
 
-\subsubsection{Selection Matrix}
+\subsection{Selection Matrix}
 
 - seperate motion and force directions
 
 % TODO: check selection matrix
 
-% HACK: Operational Space Control - FINAL big picture? P.26
+% HACK: Operational Space Control - FINAL big picture? P.30
 
 \subsection{Inverse Dynamics as QP}
 
@@ -65,4 +151,101 @@
 % TODO: check Least Square Optimization
 
 - Solving set of QPs
+
+\section{Floating Base Dynamics}
+
+\subsection{Generalized coordinates}
+
+\[
+  q =
+  \begin{pmatrix}
+    q_b\\q_j
+  \end{pmatrix}
+  \quad\text{with}\quad
+  q_b =
+  \begin{pmatrix}
+    q_{b_P}\\q_{b_R}
+  \end{pmatrix}
+  \ \in\
+  \mathbb{R}^{3}\times SO(3)
+\]
+
+\subsection{Generalized velocities and accelerations}
+
+\[
+  u =
+  \begin{pmatrix}
+    _Iv_B\\
+    _B\omega_IB\\
+    \dot{\varphi}_1\\
+    \vdots\\
+    \dot{\varphi}_{n_j}\\
+  \end{pmatrix}
+  \quad \dot{u} =
+  \begin{pmatrix}
+    _Ia_B\\
+    _B\psi_IB\\
+    \ddot{\varphi}_1\\
+    \vdots\\
+    \ddot{\varphi}_{n_j}\\
+  \end{pmatrix}
+  \ \in\
+  \mathbb{R}^{6+n_j}=
+  \mathbb{R}^{n_u}
+\]
+
+Very often, people write $\dot{q}$ but they mean $u$
+
+\[
+  u= E_{fb}\cdot\dot{q}
+  \quad\text{with}\quad
+  E_{fb}\cdot\dot{q}=
+  \begin{bmatrix}
+    1_{3\times3}&0&0\\
+    0&E_{\chi_R}&0\\
+    0&0&1_{n_j\times n_j}
+  \end{bmatrix}
+\]
+
+\subsection{Differential kinematics}
+
+% WARN: formula DK floating base
+
+\section{Contacts and Constraints}
+
+% TODO: constraints
+
+\subsection{Properties of Contact Jacobian}
+
+\section{Dynamics of Floating Base Systems}
+
+% HACK: extend EoM with new stuff
+
+- External Forces
+
+- Soft Contact
+
+- Hard Contact
+
+\section{Constraint consistent dynamics}
+
+% TODO: something usefull in formulas?
+
+\subsection{Contact Dynamics}
+
+% HACK: take impact formulas
+
+\section{Dynamic Control Methods}
+
+- Behavior as Multiple Tasks
+
+- Internal Forces
+
+\subsection{Control using inverse dynamics}
+
+% TODO: formulas
+
+\section{Task Space Control as Quadratic Program}
+
+% NOTE: again  least  squares
 
