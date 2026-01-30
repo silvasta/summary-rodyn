@@ -1,44 +1,80 @@
 
-\section{Equation of Motion}
+\section{Rigid-body Manipulators - Fixed Base}
 \begin{sstTitleBox}{
-  Equations }
-  \begin{sstOnlyFrame}
-    \[
-      M(q)\ddot{q} +
-      b(q,\dot{q}) +
-      g(q) =
-      \tau +
-      J_c^T F_c
+    Equation of Motion
+  }
+  \begin{sstFullFrame}
+    \color{white} \[
+      M(q)\ddot{q} + b(q,\dot{q}) + g(q) = \tau + J_c^T F_c
     \]
-  \end{sstOnlyFrame}
-
+  \end{sstFullFrame}
   \begin{sstOnlyFrame}
     \begin{align*}
-      & M(q)         &  & \text{Mass matrix}                     \\
-      & \ddot{q}     &  & \text{Generalized coordinates}         \\
-      & b(q,\dot{q}) &  & \text{Centrifugal and Coriolis forces} \\
-      & g(q)         &  & \text{Gravity forces}                  \\
-      & \tau         &  & \text{Generalized forces}              \\
-      & F_c          &  & \text{External forces}                 \\
-      & J_c          &  & \text{Contact Jacobian}                \\
+      M(q)         &: \text{Mass/inertia matrix (symmetric, positive
+      definite)} \\
+      b(q,\dot{q}) &: \text{Coriolis/centrifugal vector} =
+      C(q,\dot{q})\dot{q} \\
+      g(q)         &: \text{Gravity vector} \\
+      \tau         &: \text{Joint torques/forces (actuators)} \\
+      J_c^T F_c    &: \text{External contact forces mapped to joint space}
     \end{align*}
+
+  \end{sstOnlyFrame}
+  \begin{sstOnlyFrame}
+    \textbf{Properties}
+    $\dot{M} - 2C$ is skew-symmetric\\
+    (useful for stability proofs)
   \end{sstOnlyFrame}
 \end{sstTitleBox}
 
-\subsection{Principle of Virtual Work}
-- Principle of virtual work (D’Alembert’s Principle)
+\ssthl{Exam tip: Derive for 2-3 DOF arms; compute components numerically.}
 
-- Dynamic equilibrium imposes zero virtual work (for all virtual displacements)
+\subsection{Principle of Virtual Work (D’Alembert’s Principle)}
 
-- Newton’s law for every particle in direction it can move
+\textbf{For Dynamic Equilibrium:}\\
+Virtual work $\delta W = 0$ for all virtual displacements $\delta q$.
+\[
+  \sum_i (F_i - m_i \ddot{r}_i) \cdot \delta r_i + \sum_j (T_j - I_j
+  \dot{\omega}_j - \omega_j \times I_j \omega_j) \cdot \delta \theta_j = 0
+\]
+Applies Newton's laws in directions of possible motion.
 
-\subsection{Single  Rigid Body}
+\ssthl{Exam: Use to derive EoM for constrained systems.}
 
-% TODO: check Single Rigid Body,also with kinematics
+\subsection{Single Rigid Body Dynamics}
+
+\textbf{Translational}\quad $m \ddot{r} = F$ (Newton)
+
+\textbf{Rotational}\quad $I \dot{\omega} + \omega \times I \omega = T$ (Euler)
+
+\textbf{In moving frame} Velocities/accelerations include Coriolis terms
+
+\ssthl{Exam: Compute for link in chain;\\
+relate to kinematics (e.g., $^I v = ^I \dot{r} + \omega \times r$)}
 
 \subsection{Newton-Euler Method}
 
-% AI: short description
+Recursive computation for serial chains.
+Efficient ($O(n)$)
+
+\textbf{Forward}
+Propagate velocities/accelerations, base to end-effectr
+
+\textbf{Backward}
+Propagate forces/torques from end-effector to base.
+
+\textbf{Formulas} for link $i$:
+\quad \quad
+(Force/torque balance yields $\tau_i$)
+\begin{align*}
+  ^i v_i &= ^i R_{i-1}
+  (^{i-1} v_{i-1} + ^{i-1} \omega_{i-1} \times ^{i-1} p_i)
+  + ^i \dot{q}_i z_i\\
+  ^i \omega_i &= ^i R_{i-1} ^{i-1} \omega_{i-1} + ^i \dot{q}_i z_i
+  \quad (\text{revolute})
+\end{align*}
+
+\ssthl{exam: Apply to 3R arm, compare with Lagrangian}
 
 \subsection{Projected Newton-Euler}
 
@@ -48,114 +84,195 @@ Principle of virtual work for multi-body systems
 
 % WARN: EoM Definition L5.22
 
-\subsection{Lagrange II}
+\subsection{Projected Newton-Euler}
 
-- Kinetic energy
+Applies virtual work to multi-body systems.\\
+Project dynamics into joint space.\\
+Sum virtual works for EoM:
+$\tau = \sum$ \text{projected inertias/forces}
 
-- Potential energy
+\textbf{Key Terms}
+Inertia projection, Coriolis, gravity via Jacobians.
 
-% TODO: check formula L5.26
+\ssthl{Exam: Derive mass matrix $M_{ij} = \sum_k \text{trace}(J_k^T I_k J_k)$}
+
+\subsection{Lagrange Formulation}
+
+EoM from
+$\frac{d}{dt} \frac{\partial L}{\partial \dot{q}}
+- \frac{\partial L}{\partial q} = \tau$
+\quad where $L = T - V$.
+
+Energy:
+\textbf{Kinetic} $T = \frac{1}{2} \dot{q}^T M(q) \dot{q}$
+\ \
+\textbf{Potential} $V = \sum m_i g^T r_i$
+\begin{align*}
+  M_{kl} &= \sum_{i=\max(k,l)}^n \text{trace} \left( \frac{\partial
+  T_i}{\partial q_k} J_i \frac{\partial T_i^T}{\partial q_l} \right)
+  + m_i \frac{\partial r_i^T}{\partial q_k} \frac{\partial r_i}{\partial q_l}
+  \\
+  b &= C\dot{q}\quad \text{from Christoffel symbols}
+\end{align*}
+\ssthl{Exam: Full derivation for planar 2R; identify $M, C, g$.}
 
 \subsection{External Forces and Torques}
 
-% TODO: layout
+Map to joint torques:
 
-\begin{align*}
-  \textbf{Forces}     \tau_{F_{ext}} & = \sum_{j=1}^{n_{f,ext}}
-  J_{P,j}^T T_{ext,k}
-  \\
-  \textbf{Torques}    \tau_{T_{ext}} & = \sum_{k=1}^{n_{m,ext}}
-  J_{R,k}^T T_{ext,k}
-  \\
-  \textbf{Actuators}  \tau_{a,k}     & = (J_{S_k} - J_{S_{k-1}})^T
-  F_{a,k} + (J_{R_k} - J_{R_{k-1}})^T T_{a,k}
-\end{align*}
+\begin{minipage}[t]{0.5\textwidth}
+  \textbf{Forces}
+  \[
+    \tau_{F_{ext}} = \sum_{j=1}^{n_f} J_{P,j}^T F_{ext,j}
+  \]
+\end{minipage}%
+\begin{minipage}[t]{0.5\textwidth}
+  \textbf{Torques}
+  \[
+    \tau_{T_{ext}} = \sum_{k=1}^{n_m} J_{R,k}^T T_{ext,k}
+  \]
+\end{minipage}
+\textbf{Actuators}
+\[
+  \tau_{a} = \sum_k (J_{S_k} - J_{S_{k-1}})^T F_{a,k} + (J_{R_k} -
+  J_{R_{k-1}})^T T_{a,k}
+\]
+
+$J_P, J_R$: Position/rotation Jacobians.
+
+\ssthl{Exam: Compute for end-effector force.}
 
 \subsection{Velocity in Moving Bodies}
 
-- Definitions
+Velocity in frame $i$:
+\quad
+\textbf{Linear}
+$^i v = ^i \dot{r} + ^i \omega \times ^i r$
+\quad
+\textbf{Angular} $^i \omega$.
 
-- Moving Frame
+\textbf{Twist vector}: $V =
+\begin{bmatrix} v \\ \omega
+\end{bmatrix}$.
 
-\subsection{Prismatic Joints}
+\textbf{Propagation}
+$^i V_i = ^i A_{i-1} ^{i-1} V_{i-1} + ^i \dot{q}_i e_i$
+\quad
+($A$: adjoint).
 
-TODO: Jacobians
+\ssthl{Exam: Use in NE recursion}
 
-- Position Jacobian
+\subsection{Jacobians for Prismatic/Revolute Joints}
 
-- Rotation Jacobian
+Jacobian $J =
+\begin{bmatrix} J_v & J_\omega
+\end{bmatrix}$
+maps $\dot{q} \to$ task velocity
 
-- Example
+\textbf{Prismatic} for joint $i$:
+Col $i$ of $J_v = z_{i-1}$, $J_\omega = 0$
+
+\textbf{Revolute}:
+$J_v = z_{i-1} \times (p - p_{i-1})$, $J_\omega = z_{i-1}$
+
+\ssthl{Exam example: 2R planar arm Jacobian,
+singularity when det($J$)=0 (e.g., extended arm).}
 
 \section{Dynamic Control}
 
-% TODO: images position/torque control L6.6
+\textbf{Control loops}\\
+Position (inner vel/torque),
+Torque (feedforward dynamics).
+
+\ssthl{Exam: Block diagrams for PD + gravity comp:\\
+$\tau = g(q) + K_p e + K_d \dot{e}$}
 
 \subsection{Joint Impedance Control}
 
-% TODO: Formula
+$\tau = g(q)
++ K_p (q_d - q)
++ K_d (\dot{q}_d - \dot{q})
++ K_i \int e \, dt + J^T F_{ext}$
 
-% HACK: Formula with Gravity compensation
+Tuned as mass-spring-damper:\\
+\textbf{Eigenfreq} $\omega = \sqrt{K_p/m}$
+\textbf{Damping} $\zeta = K_d/(2\sqrt{m K_p})$
 
-\subsection{Inverse Dynamics Control}
+\ssthl{Exam: Stability via Lyapunov.}
 
-Compensate for system dynamics + PD law on acceleration
+\subsection{Inverse Dynamics Control (Computed Torque)}
 
-% TODO: copy different formulas
+$\tau = M(q) (\ddot{q}_d + K_d \dot{e} + K_p e) + b(q,\dot{q}) + g(q)$
 
-- every joint behaves like decoupled mass-spring damper
+Decouples to $\ddot{e} + K_d \dot{e} + K_p e = 0$
 
-- Eigenfrequency
+\ssthl{Exam: Derive error dynamics; choose gains for crit. damping.}
 
-- Damping
+\subsection{Task-Space Dynamic Control}
 
-\subsection{Task-space dynamic control}
+\textbf{EoM in task space}
+$\Lambda(x) \ddot{x} + \mu(x,\dot{x}) + p(x) = F + J^{-T} \tau_{ext}$
 
-- single task: just use pseudo-inverse
+\textbf{Control}
+$F = \Lambda (\ddot{x}_d + K_d \dot{e}_x + K_p e_x) + \mu + p$
 
-% WARN: formula Task-space dynamics control
+\textbf{For redundancy} Use $J^\dagger = W^{-1} J^T (J W^{-1} J^T)^{-1}$
+(weighted pseudo-inv)
 
-- multiple task: stack $J_i,w_i$, pseudo-inverse, done (equal priority)
+\textbf{Multiple tasks}
+Stack Jacobians, null-space projectors $N = I - J^\dagger J$
 
-\subsection{End-effector dynamics}
+\ssthl{Exam: Prioritize tasks (e.g., motion > posture)}
 
-% TODO: formula
+\subsection{End-Effector Dynamics}
 
-- end-effector motion control
+$\Lambda = (J M^{-1} J^T)^{-1}$
+control as above.
 
-- trajectory control (feedforwad term)
+Feedforward for traj: $\ddot{x}_d$ from planning.
+
+\ssthl{Exam: Compute $\Lambda$ for 3R arm.}
 
 \section{Interaction Control}
 
 \subsection{Operational Space Control}
 
-Generalized framework to control motion and force
+Unified: Includes force $F_c$ in dynamics.
 
-% TODO: formula
-- $F_c$ as contact force
+% # TODO: write on 2 lines with some align* method as it doesn't fit on 1 line
+$\tau = J^T \Lambda (\ddot{x}_d + K_d \dot{e}_x + K_p e_x -
+J M^{-1} (b + g)) + (I - J^T \bar{J}^T) \tau_0$
+
+\ssthl{Exam: Hybrid force-motion via selection matrix $S$
+(e.g., $S=I$ motion, $S=0$ force)}
 
 \subsection{Selection Matrix}
 
-- seperate motion and force directions
+$S$: Diagonal, separates DOFs (e.g., force in z, motion in x-y)
+Control: Blend impedances.
 
-% TODO: check selection matrix
+\ssthl{Exam: Formula for hybrid:
+$\tau = J^T (S F_m + (I-S) F_f)$.}
 
 % HACK: Operational Space Control - FINAL big picture? P.30
 
 \subsection{Inverse Dynamics as QP}
 
-- use: some sort of “mass-matrix weighted pseudo-inverse”
+\textbf{Formulation}
+$\min_u \| A u - b \|^2_W$ s.t. constraints (torque limits,...)
 
-- quadratic optimization
+\textbf{For tasks}
+Hierarchical QPs, solve sequentially
 
-% TODO: check Least Square Optimization
-
-- Solving set of QPs
+\ssthl{Exam: Least-squares for overconstrained systems,\\
+  weighted pseudo-inv
+$J^\dagger_W = W^{-1} J^T (J W^{-1} J^T)^{-1}$}
 
 \section{Floating Base Dynamics}
 
-\subsection{Generalized coordinates}
+For mobile/legged robots: Unactuated base.
 
+\subsection{Generalized coordinates}
 \[
   q =
   \begin{pmatrix}
@@ -171,7 +288,6 @@ Generalized framework to control motion and force
 \]
 
 \subsection{Generalized velocities and accelerations}
-
 \[
   u =
   \begin{pmatrix}
@@ -193,59 +309,92 @@ Generalized framework to control motion and force
   \mathbb{R}^{6+n_j}=
   \mathbb{R}^{n_u}
 \]
-
-Very often, people write $\dot{q}$ but they mean $u$
-
 \[
   u= E_{fb}\cdot\dot{q}
   \quad\text{with}\quad
-  E_{fb}\cdot\dot{q}=
+  E_{fb}=
   \begin{bmatrix}
     1_{3\times3}&0&0\\
     0&E_{\chi_R}&0\\
     0&0&1_{n_j\times n_j}
   \end{bmatrix}
 \]
+$E_{fb}$ maps quaternions/Euler to twists.
 
-\subsection{Differential kinematics}
+\ssthl{Exam: Note $\dot{q} \neq u$ due to SO(3).}
 
-% WARN: formula DK floating base
+\subsection{Differential Kinematics}
+
+Floating:
+$J =
+\begin{bmatrix} J_b & J_j
+\end{bmatrix}$,\
+$\dot{x} = J(q) u$
+(task vel from gen. vel)
 
 \subsection{Contacts and Constraints}
 
-% TODO: constraints
+\textbf{Hard} $J_c u = 0$ (no slip),\
+\textbf{Soft} Compliant models
 
-\subsection{Properties of Contact Jacobian}
+\textbf{Constraints}
+$J_c \dot{u} + \dot{J}_c u = 0$
+
+\ssthl{Exam: Enforce via Lagrange multipliers $F_c = -\lambda$.}
 
 \section{Dynamics of Floating Base Systems}
 
 % HACK: extend EoM with new stuff
 
-- External Forces
+\begin{sstFullFrame}
+  \color{white}
+  \[
+    M(q) \dot{u} + h(q,u) = S^T \tau + J_c^T F_c
+  \]
+\end{sstFullFrame}
 
-- Soft Contact
+where $S =
+\begin{bmatrix} 0 & I
+\end{bmatrix}$ (underactuated base), $h = b + g$.
 
-- Hard Contact
+\subsection{Constraint-Consistent Dynamics}
 
-\subsection{Constraint consistent dynamics}
+Project to null-space of constraints:
+$\bar{M} \dot{\bar{u}} + \bar{h} = \bar{S}^T \tau$.
 
-% TODO: something usefull in formulas?
+\ssthl{Exam: For legged, balance via CoM control}
 
 \subsection{Contact Dynamics}
 
-% HACK: take impact formulas
+\textbf{Impacts}
+Instant velocitiy change:
+
+$\Delta u = - (J_c M^{-1} J_c^T)^{-1} J_c u^- $
+(pre-impact)
+
+\textbf{Soft}
+Spring-damper
+$F_c = k \delta + d \dot{\delta}$
 
 \subsection{Dynamic Control Methods}
 
-- Behavior as Multiple Tasks
+\textbf{Multi-task}
+Motion as tasks (e.g., CoM, feet)
 
-- Internal Forces
+\textbf{Internal forces}
+Null-space torques for stability.
 
-\subsection{Control using inverse dynamics}
+\subsection{Control Using Inverse Dynamics}
 
-% TODO: formulas
+$\tau = S^+ (M \dot{u}_d + h - J_c^T F_{c,d}) + N \tau_0$
+
+\ssthl{Exam: Choose $\dot{u}_d$ for tasks}
 
 \subsection{Task Space Control as Quadratic Program}
 
-% NOTE: again  least  squares
+Hierarchical QP: Min cost for primary task, then secondary in
+null-space.
+
+\ssthl{Exam: Formulate for torque optimization with friction
+cone constraints}
 

@@ -230,17 +230,6 @@ arrows.meta }
   title=\center\textbf{\large #2},
   breakable
 }
-% for boxes with fail break...
-\newtcolorbox{sstBreakBox}[2][default-box-color]{
-  colframe=#1,
-  colback=#1!20,
-  bottom=0pt,
-  left=0pt,
-  right=0pt,
-  top=2pt,
-  title=\center\textbf{\large #2},
-  % breakable
-}
 % only thin, empty frame with white background
 \newtcolorbox{sstOnlyFrame}[1][default-box-color]{
   colframe=#1,
