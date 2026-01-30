@@ -212,7 +212,7 @@ arrows.meta }
 % \sethlcolor{RoyalBlue}%!90}
 \definecolor{hltext}{rgb}{256,256,256}
 \newcommand{\ssthl}[1]{%
-  \textbf{\textcolor{hltext}{\hl{#1}}}%
+  \textbf{\textcolor{hltext}{\hl{ #1 }}}%
 }
 % --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 % Color frames

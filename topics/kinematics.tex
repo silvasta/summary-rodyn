@@ -1,227 +1,313 @@
 \section{Vectors and Positions}
 
-Parametrizations
+Position vectors:
+Parametrize $P$ in frame $\mathcal{A}$ as
+${}_\mathcal{A}\mathbf{r}_{AP} = \mathbf{r}(\chi)$,\\
+where $\chi$ are parameters (e.g., Cartesian coords)
 
 \subsection{Linear Velocity}
 
 \[
-  \begin{aligned}
-    r       & = r(\chi)
-    \\
-    \dot{r} & = \frac{\partial r}{\partial \chi}\dot{\chi}
-    = E_p(\chi)\dot{\chi}
-\end{aligned}\]
+  r        = r(\chi)
+  \quad\quad
+  \dot{r}  = \frac{\partial r}{\partial \chi}\dot{\chi}
+  = E_p(\chi)\dot{\chi}
+\]
+
+\ssthl{Exam tip: Used in Jacobians for task-space velocities}
 
 \subsection{Rotations}
 
+Rotation matrix \( \mathbf{C}_{\mathcal{A}\mathcal{B}} \) transforms
+vectors from frame \( \mathcal{B} \) to \( \mathcal{A} \):
 \[
-  _\mathcal{A}r_{AP}
-  = C_{\mathcal{A}\mathcal{B}}
-  \cdot _\mathcal{B}r_{AP}
+  {}_\mathcal{A}\mathbf{r}_{AP} = \mathbf{C}_{\mathcal{A}\mathcal{B}}
+  \cdot {}_\mathcal{B}\mathbf{r}_{AP}
 \]
+\textbf{Properties}
+Orthogonal (\( \mathbf{C}^T = \mathbf{C}^{-1} \)),
+det=1 for proper rotations
 
-% TODO: aexb...
+\textbf{Elementary rotations} (about x,y,z axes by angle \( \theta \)):
 \[
-  C_{\mathcal{A}\mathcal{B}} =
+  \mathbf{R}_x(\theta) =
+  \begin{bmatrix} 1 & 0 & 0 \\ 0 & \cos\theta & -\sin\theta \\ 0 &
+    \sin\theta & \cos\theta
+  \end{bmatrix}
 \]
-
 \[
-  C_{\mathcal{A}\mathcal{C}} =
-  C_{\mathcal{A}\mathcal{B}}
-  \cdot
-  C_{\mathcal{B}\mathcal{C}}
+  \mathbf{R}_y(\theta) =
+  \begin{bmatrix} \cos\theta & 0 & \sin\theta \\ 0 & 1 & 0
+    \\ -\sin\theta & 0 & \cos\theta
+  \end{bmatrix}
 \]
-- elementary rotatons
-
-% TODO: formulas
-
-- homogenous transfomations
-
 \[
-  T_{\mathcal{A}\mathcal{B}} =
-  \begin{bmatrix}
-    C_{\mathcal{A}\mathcal{B}} & _\mathcal{A}r_{AP}
-    \\
-    0_{1\times 3}              & 1
+  \mathbf{R}_z(\theta) =
+  \begin{bmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta &
+    \cos\theta & 0 \\ 0 & 0 & 1
   \end{bmatrix}
 \]
 
-- passive and active rotation
+\textbf{Composition} \( \mathbf{C}_{\mathcal{A}\mathcal{C}} =
+  \mathbf{C}_{\mathcal{A}\mathcal{B}} \cdot
+\mathbf{C}_{\mathcal{B}\mathcal{C}} \).
+
+\textbf{Homogeneous transformations} (4x4 for position + orientation)
+\[
+  \mathbf{T}_{\mathcal{A}\mathcal{B}} =
+  \begin{bmatrix} \mathbf{C}_{\mathcal{A}\mathcal{B}} &
+    {}_\mathcal{A}\mathbf{r}_{AB} \\ \mathbf{0}_{1\times3} & 1
+  \end{bmatrix}
+\]
+\textbf{Passive} Rotate frame\quad \textbf{Active} Rotate vector
+
+\ssthl{Exam pitfall: Distinguish for inverse problems}
 
 \subsection{Angular Velocity}
 
-% TODO: definition angular v
+Angular velocity \( \boldsymbol{\omega}\) satisfies
+\( \dot{C} = \boldsymbol{\omega} \times \mathbf{C} \),
+\( \dot{C} = \mathbf{S}(\boldsymbol{\omega}) \mathbf{C} \)
+\[
+  \mathbf{S}(\mathbf{a}) =
+  \begin{bmatrix}
+    0 & -a_z & a_y \\ a_z & 0 & -a_x \\ -a_y & a_x & 0
+  \end{bmatrix}
+\]
+
+\textbf{Composition:}
+\( {}_\mathcal{A}\boldsymbol{\omega}_{\mathcal{A}\mathcal{C}} =
+  {}_\mathcal{A}\boldsymbol{\omega}_{\mathcal{A}\mathcal{B}} +
+  \mathbf{C}_{\mathcal{A}\mathcal{B}}
+{}_\mathcal{B}\boldsymbol{\omega}_{\mathcal{B}\mathcal{C}} \).
 
 % WARN: Notation recap L2.3
 
 \subsection{Parametrization of 3d Rotations}
 
-\begin{itemize}
-  \item Rotation matrix
-    \begin{itemize}
-      \item $3 \times 3 = 9$ parameters
-      \item Orthonormality $= 6$ constraints
-    \end{itemize}
-  \item Euler angles
-  \item Angle axis
-  \item Rotation vector
-  \item Unit quaternions
-    \begin{itemize}
-      \item 4 parameters
-      \item no singularity, unitary constraints
-    \end{itemize}
+\textbf{Minimal params}: 3 (due to SO(3) manifold)\\
+Common for avoiding singularities in kinematics/control.
+
+\begin{itemize}[itemsep=0pt]
+  \item \textbf{Rotation matrix} 9 params, 6 orthonormality constraints.
+    Direct but redundant.
+  \item \textbf{Euler angles} (e.g., ZYZ):
+    \( \mathbf{C} = \mathbf{R}_z(\phi)
+    \mathbf{R}_y(\theta) \mathbf{R}_z(\psi) \)\\
+    3 params, \textbf{singularities} at \( \theta = 0,\pi \) (gimbal lock).\\
+    \ssthl{Exam: Derive matrix; convert to/from}
+  \item \textbf{Angle-axis}
+    No singularities but multi-valued.\\
+    \( \mathbf{C} = \exp(\mathbf{S}(\mathbf{k}\theta)) = \mathbf{I} +
+      \sin\theta \mathbf{S}(\mathbf{k}) + (1-\cos\theta)
+    \mathbf{S}^2(\mathbf{k}) \)
+    (Rodrigues) \( \mathbf{k} \) unit vector, \( \theta \) angle.
+  \item \textbf{Rotation vector}
+    \( \boldsymbol{\rho} = \mathbf{k}\theta \),
+    Similar to angle-axis.
+  \item \textbf{Unit quaternions}
+    4 params, 1 constraint.
+    No singularities; efficient for interpolation/composition.
+    \\    \( \mathbf{q} = (q_0, \mathbf{q}_v) = (\cos(\theta/2), \mathbf{k}
+    \sin(\theta/2)) \), \( \|\mathbf{q}\|=1 \).
 \end{itemize}
 
-\subsection{Euler angles}
-
-- Consecutive elementary rotations
-
-% AI: euler <> rotation matrix
-
-\subsection{angle axis and rotation vector}
-
 \subsection{Unit Quaternions}
+\textbf{To rotation matrix}
+\[
+  \mathbf{C}(\mathbf{q}) = \mathbf{I} + 2q_0 \mathbf{S}(\mathbf{q}_v)
+  + 2\mathbf{S}^2(\mathbf{q}_v)
+\]
+\textbf{From matrix}
+Extract \( \theta = \arccos((\text{trace}(\mathbf{C})-1)/2) \)
+\[
+  \mathbf{q}_1 \circ \mathbf{q}_2 = (q_{10}q_{20} -
+    \mathbf{q}_{1v} \cdot \mathbf{q}_{2v}, q_{10}\mathbf{q}_{2v} +
+  q_{20}\mathbf{q}_{1v} + \mathbf{q}_{1v} \times \mathbf{q}_{2v})
+\]
+\textbf{Rotate vector}
+\( \mathbf{v}' = \mathbf{q} \circ (0,\mathbf{v}) \circ
+\mathbf{q}^{-1} \) (pure quaternion)
 
-% AI: Quaternions <> rotation matrix
+\textbf{Time derivative}
+\( \dot{\mathbf{q}} = \frac{1}{2} \mathbf{q} \circ (0, \boldsymbol{\omega}) \)
 
-\subsection{Algebra with Quaternions}
-
-- product
-
-- rotating vector
-
-% AI: Quaternions math, rust
-
-\subsection{Time Derivatives and Rotational Velocity}
-
-- problem with singularities, use Quaternions
+\ssthl{Exam: Use for singularity-free velocity integration.}
 
 \section{Multi Body Kinematics}
 
-Generalized coordinates
-\[
-  q =
-  \begin{pmatrix}
-    q1 \\ \vdots \\ q_n
-  \end{pmatrix}
-\]
+\textbf{Generalized coordinates}
+Joint variables \( \mathbf{q} = (q_1, \dots, q_n)^T \)\\
+(e.g., angles for revolute, displacements for prismatic)
 
-End-effector configuration parameters
+\textbf{End-effector} configuration
+\( \boldsymbol{\chi}_e = (\boldsymbol{\chi}_{eP}, \boldsymbol{\chi}_{eR})^T \)\\
+(position + orientation params)
 
-\[
-  \chi_e =
-  \begin{pmatrix}
-    \chi_{eP} \\ \chi_{eR}
-  \end{pmatrix}
-\]
-
-Operational space coordinates
-
-\[
-  \chi_o =
-  \begin{pmatrix}
-    \chi_{oP} \\ \chi_{oR}
-  \end{pmatrix}
-\]
-
-\subsection{Kinematics of Systems of Bodies}
-
-% HACK: L3.13 picture!
-
-- Joint space
-
-- Task space
+\textbf{Operational/task space}
+Subset \( \boldsymbol{\chi}_o \) for specific tasks \\
+(e.g., position only)
 
 \subsection{Forward Kinematics}
 
-$$
-\chi_e = \chi_e(q)
-$$
+% HACK: L3.13 picture!
 
-use multiplied transfomation matrix $T_{IE}$
+End-effector configuration \( \boldsymbol{\chi}_e = f(\mathbf{q}) \).
+For serial chains: Product of homogeneous transforms
+\( \mathbf{T}_{0n} = \mathbf{T}_{01} \mathbf{T}_{12} \cdots
+\mathbf{T}_{(n-1)n} \)
 
-\begin{sstTitleBox}[ForestGreen]{{
-      \subsection{Jacobians}
-  }}
+\textbf{Denavit-Hartenberg (DH) params}\\
+Standard for link modeling \ssthl{(crucial for exams!)}\\
+
+Transform $\mathbf{T}_{i-1,i} =$
+\[
+  \begin{bmatrix} \cos\theta_i & -\sin\theta_i \cos\alpha_i &
+    \sin\theta_i \sin\alpha_i & a_i \cos\theta_i \\ \sin\theta_i &
+    \cos\theta_i \cos\alpha_i & -\cos\theta_i \sin\alpha_i & a_i
+    \sin\theta_i \\ 0 & \sin\alpha_i & \cos\alpha_i & d_i \\ 0 & 0 & 0 & 1
+  \end{bmatrix}
+\]
+Link length: \( a_i \)|
+Link twist: \( \alpha_i \)|
+Link offset: \( d_i \)|
+Joint angle: \( \theta_i \)
+
+\ssthl{Exam: Assign DH table for given robot;
+compute forward map; analyze workspace}
+
+\subsection{Jacobians}
+
+\begin{sstTitleBox}[ForestGreen]{
+    Jacobi-Box
+  }
+  \begin{sstFullFrame}[ForestGreen]
+    \color{white}
+    \[
+      \text{Differential map:} \quad
+      \dot{\chi_e} = J_{eA}(q)\dot{q}
+    \]
+    % TODO: why the A in J_{eA}
+    \[
+      \text{Differential map:} \quad
+      \dot{\boldsymbol{\chi}}_e = \mathbf{J}_{eA}(\mathbf{q}) \dot{\mathbf{q}}
+    \]
+  \end{sstFullFrame}
   \begin{sstOnlyFrame}[ForestGreen]
-    $$
-    \dot{\chi_e} =
-    J_{eA}(q)\dot{q}
-    $$
+    \[
+      J_{eA} =
+      \frac{\partial \chi_e}{\partial q} =
+      \begin{bmatrix}
+        \frac{\partial \chi_1}{\partial q_1}
+        & \dots  &
+        \frac{\partial \chi_1}{\partial q_n}
+        \\
+        \vdots & \ddots & \vdots
+        \\
+        \frac{\partial \chi_m}{\partial q_1}
+        & \dots  &
+        \frac{\partial \chi_m}{\partial q_n}
+      \end{bmatrix}
+    \]
   \end{sstOnlyFrame}
   \begin{sstOnlyFrame}[ForestGreen]
-    $$
-    J_{eA} =
-    \frac{\partial \chi_e}{\partial q_1} =
-    \begin{bmatrix}
-      \frac{\partial \chi_1}{\partial q_1}
-      & \dots  &
-      \frac{\partial \chi_1}{\partial q_n}
-      \\
-      \vdots & \ddots & \vdots
-      \\
-      \frac{\partial \chi_m}{\partial q_1}
-      & \dots  &
-      \frac{\partial \chi_m}{\partial q_n}
-    \end{bmatrix}
-    $$
+    \textbf{Analytical Jacobian}
+    For orientation params (Euler rates,..)
   \end{sstOnlyFrame}
-  TODO: geometric, algebraic L3.21
+  \begin{sstOnlyFrame}[ForestGreen]
+    \textbf{Geometric Jacobian}
+    Columns from velocity contributions\\
+    (prismatic: linear velocity;
+      revolute:
+    \( \boldsymbol{\omega}_i \times \mathbf{r}_{i e} + \mathbf{v}_i \)).
+  \end{sstOnlyFrame}
+  \begin{sstOnlyFrame}[ForestGreen]
+    \textbf{Prismatic}
+    Position
+    \( \mathbf{J}_{P,i} = \mathbf{z}_{i-1} \),
+    Rotation
+    \( \mathbf{J}_{O,i} = \mathbf{0} \)
+
+    \textbf{Revolute}
+    Pos.
+    \( \mathbf{J}_{P,i} = \mathbf{z}_{i-1} \times \mathbf{r}_{i e} \),
+    Rotation
+    \( \mathbf{J}_{O,i} = \mathbf{z}_{i-1} \)
+  \end{sstOnlyFrame}
+  \begin{sstOnlyFrame}[ForestGreen]
+    \textbf{Singularity} $det(J)=0 \to$ loss of DOF
+
+    \ssthl{Exam: Compute rank, manipulability}
+    \( \mu = \sqrt{\det(\mathbf{J}\mathbf{J}^T)} \).
+  \end{sstOnlyFrame}
 \end{sstTitleBox}
 
 \subsection{Velocity in Moving Bodies}
 
-% TODO: definitions
+\textbf{Rigid Body Formulation}
+Point P velocity in frame A:\\
+\( {}_\mathcal{A}\mathbf{v}_P =
+  {}_\mathcal{A}\mathbf{v}_B +
+  {}_\mathcal{A}\boldsymbol{\omega}_{\mathcal{A}\mathcal{B}} \times
+  {}_\mathcal{A}\mathbf{r}_{BP} + \mathbf{C}_{\mathcal{A}\mathcal{B}}
+{}_\mathcal{B}\mathbf{v}_{BP}^{\text{rel}} \).
 
-- Rigid body formulation
+\textbf{Twist vector}
+\( \mathbf{t} = (\boldsymbol{\omega}, \mathbf{v})^T \),
+propagates via adjoint matrices.
 
-ArAP = ArAB + [AwAB]*CAB*BrBP
-
-vP = vB + Om x rBP
-
-\subsection{Jacobians for Prismatic Joint}
-
-- Position
-
-- Rotation
+\ssthl{Exam: Recursive computation for serial chains (forward for velocities).}
 
 \section{Inverse Kinematics}
-
 \[
   w_e^\star = J_{e0} \dot{q}
 \]
+% TODO: better formulation
+Solve \( \mathbf{q} = f^{-1}(\boldsymbol{\chi}_e^\star) \)
 
-Things to take into account:
+Analytical for low DOF (e.g., 3R planar: geometric)
 
-- Singularities
+Numerical otherwise (e.g., Newton-Raphson)
 
-- Redundancy
+\textbf{Velocity level}
+\( \dot{\mathbf{q}} = \mathbf{J}^\dagger \dot{\boldsymbol{\chi}}_e +
+(\mathbf{I} - \mathbf{J}^\dagger \mathbf{J}) \dot{\mathbf{q}}_0 \)
+\\(pseudo-inverse for redundancy; nullspace for secondary tasks)
 
-% HACK: section pseudoinverse??
+\textbf{Singularities}
+Use damped least-squares\\
+\( \mathbf{J}^\dagger
+= \mathbf{J}^T (\mathbf{J}\mathbf{J}^T + \lambda^2 \mathbf{I})^{-1} \)
 
-- Nullspace of matrix
+\textbf{Redundancy}
+If $n > m$, infinite solutions; optimize (e.g., min norm velocity).
 
 \subsection{Multi-task control}
 
-% TODO: definitions
+Single task: \( \dot{\mathbf{q}} = \mathbf{J}^\dagger
+\dot{\boldsymbol{\chi}}^\star \).
 
-- singel Task
+Stacked: Combine Jacobians \( \mathbf{J}_s =
+  \begin{bmatrix} \mathbf{J}_1 \\ \mathbf{J}_2
+\end{bmatrix} \), solve if consistent.
 
-- Stacked Task
-
-- Priorization
+Prioritized: \( \dot{\mathbf{q}} = \mathbf{J}_1^\dagger
+  \dot{\boldsymbol{\chi}}_1^\star + (\mathbf{I} - \mathbf{J}_1^\dagger
+  \mathbf{J}_1) \mathbf{J}_2^\dagger (\dot{\boldsymbol{\chi}}_2^\star -
+\mathbf{J}_2 \mathbf{J}_1^\dagger \dot{\boldsymbol{\chi}}_1^\star) \).
 
 \subsubsection{Error analysis}
 
-\textbf{Mapping associated with the Jacobian}
+Task error:
+\( \mathbf{e} = \boldsymbol{\chi}^\star - \boldsymbol{\chi} \)\\
+Control: \( \dot{\boldsymbol{\chi}}^\star = \dot{\boldsymbol{\chi}}_d
++ \mathbf{K} \mathbf{e} \)
+(resolved rate)
 
-Joint space <=> Task space
+\textbf{Joint trajectory}
+Interpolate \( \mathbf{q}(t) \)
+(e.g., cubic polynomial for vel/acc constraints)
 
-\subsection{Trajectory control}
-
-% WARN: formula q star, r star
-
-\subsection{Velocity in Moving Bodies 2}
-
-% TODO: check and compare with that before
+\ssthl{Exam patterns: Compute inverse for 2-3 DOF arm; handle
+redundancy/singularities in control loops.}
 
