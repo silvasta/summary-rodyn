@@ -1,0 +1,177 @@
+\section{Fixed-Wing Aircraft}
+
+Key Assumptions and Simplifications
+
+\begin{itemize}
+  \item \textbf{Rigid symmetric structure} Constant, diagonal inertia matrix
+  \item \textbf{Constant mass} Neglect fuel burn (electric/short duration)
+  \item \textbf{No stall} Operating strictly in the linear lift domain
+  \item \textbf{Lumped Aerodyn.} Lift/drag of wing and fuselage combined
+  \item \textbf{No Side-Force} Sideslip $\beta$ is regulated to 0
+  \item \textbf{No Interference effects} e.g. prop wash on control surfaces
+  \item \textbf{CoM Origin} Body frame origin placed at Center of Mass
+\end{itemize}
+
+\subsection{Reference Frames and Kinematics}
+\begin{itemize}
+  \item \textbf{Inertial Frame E (NED)}
+    North ($x_E$), East ($y_E$), Down ($z_E$)
+  \item \textbf{Body Frame B}
+    $x_B$ (nose), $y_B$ (right wing), $z_B$ (down)
+  \item \textbf{Wind Frame W}
+    $x_W$ aligned with air-mass velocity vector $\mathbf{V}_a$
+\end{itemize}
+
+\textbf{Body Velocity} in B(ody frame):
+$\mathbf{V}_a^B = (u, v, w)^T$\\
+\textbf{Airspeed:} $V = \|\mathbf{V}_a^B\| = \sqrt{u^2 + v^2 + w^2}$
+(always positive) \\
+\textbf{Body Rates} (in B): $\boldsymbol{\omega}^B = (p, q, r)^T$
+
+\textbf{Airflow Angles:}
+\begin{align*}
+  \alpha &= \arctan(w/u) \quad (\text{Angle of Attack}) \\
+  \beta  &= \arcsin(v/V) \quad (\text{Sideslip Angle})
+\end{align*}
+
+\textbf{Euler Angles}:
+$\mathbf{X} = (\phi, \theta, \psi)^T$ (roll, pitch, yaw)
+
+\textbf{Rotation Matrix} $C_{EB}$ (ZYX sequence):
+\[
+  \mathbf{V}_a^E = C_{EB} \, \mathbf{V}_a^B, \quad
+  C_{EB} = C_{z}(\psi) \, C_{y}(\theta) \, C_{x}(\phi)
+\]
+\textbf{Angular Rates Relation}:
+\[
+  \begin{pmatrix} p \\ q \\ r
+  \end{pmatrix} =
+  \begin{pmatrix} 1 & 0 & -\sin\theta \\ 0 & \cos\phi & \sin\phi
+    \cos\theta \\ 0 & -\sin\phi & \cos\phi \cos\theta
+  \end{pmatrix}
+  \begin{pmatrix} \dot{\phi} \\ \dot{\theta} \\ \dot{\psi}
+  \end{pmatrix}.
+\]
+Singularity at $\theta = \pm \pi/2$ (gimbal lock, use quaternions)
+
+\textbf{Polar Coordinates (No Wind Assumption)}
+
+\textbf{Longitudinal}
+$\theta$ (pitch), $\gamma$ (flight path), $\alpha$,
+Relation: $\theta = \alpha + \gamma$
+\\
+\textbf{Lateral}
+$\psi$ (yaw/heading), $\xi$ (course)
+
+\textit{Why no wind?}
+If wind = 0, ground velocity equals airspeed,
+simplifying position derivatives.
+
+\textbf{With Steady Wind}
+$\mathbf{v}_{g} = \mathbf{v}_a + \mathbf{v}_w$ (Wind Triangle)
+Difference between Heading $\psi$ and Course
+angle $\chi$ (direction of $\mathbf{v}_{g}$)
+$\chi$ is the \textit{Crab Angle}.
+
+\subsection{Aerodynamics}
+\textbf{Bernoulli Equation} (Incompressible)
+$\frac{1}{2}v^2 + gh + \frac{P}{\rho} = \text{const}$
+\\
+\textbf{Dynamic Pressure}: $q = \frac{1}{2} \rho V^2$
+($\rho$: air density,  $V$: airspeed)
+\\
+\textbf{Aerodynamic Forces \& Moments} \\
+\begin{center}
+  \begin{tabular}{l l l}
+    \textbf{Type} & \textbf{2D Airfoil (per unit span)} & \textbf{3D
+    Whole Aircraft} \\ \hline
+    Lift ($\perp$) & $dL = q \, c \, C_l \, dy$ & $L = q \, S \, C_L$ \\
+    Drag ($\parallel$) & $dD = q \, c \, C_d \, dy$ & $D = q \, S \, C_D$ \\
+    Moment & $dM = q \, c^2 \, C_m \, dy$ & $M = q \, S \, \bar{c} \, C_M$ \\
+  \end{tabular}
+\end{center}
+$q$: dynamic pressure,
+$S$: wing area,
+$c$/$\bar{c}$: chord/mean
+\\
+$C_{l,d,m}$ and $C_{L,D,M}$
+functions of: $\alpha$, Re, Ma (Mach)\\
+
+\textbf{Reynolds Number:} $\text{Re} = \frac{V L}{\nu}$ ($L$: char.
+length, $\nu$: kin. viscosity)
+
+\textbf{Stall}: Occurs at high $\alpha$; $C_L$ drops post-max.
+Avoid in operation!
+
+\begin{itemize}
+  \item Coefficients from CFD (Xfoil, Javafoil), wind tunnel, flight data sysid
+    or linear approximations ($C_L \approx C_{L0} + C_{L\alpha}\alpha$)
+  \item Control surfaces modify $C_L$/$C_M$:\\
+    Ailerons (Roll), Elevator (Pitch), Rudder (Yaw)
+  \item \textbf{Steady Level Flight:} $L = mg$, $D = T$ (thrust)
+\end{itemize}
+
+\subsection{Equation of Motion and Dynamics}
+
+Model as single rigid body (Newton-Euler):
+\begin{align*}
+  m \dot{\mathbf{v}}^B
+  &= \mathbf{F}^B
+  - \boldsymbol{\omega}^B \times m \mathbf{v}^B \\ \mathbf{I}
+  \dot{\boldsymbol{\omega}}^B
+  &= \mathbf{T}^B
+  - \boldsymbol{\omega}^B \times \mathbf{I} \boldsymbol{\omega}^B
+\end{align*}
+
+\textbf{Forces in B}: $\mathbf{F}^B = \mathbf{F}_\text{aero}^B +
+\mathbf{F}_\text{prop}^B + \mathbf{F}_\text{grav}^B$
+
+\textbf{Simplified Aero Forces} (in wind frame, then rotate):
+\begin{itemize}
+  \item Assume no side force ($Y=0$).
+  \item Lift/Drag lumped.
+\end{itemize}
+
+\subsection{Key Flight Conditions}
+\textbf{Steady Level Flight}
+\[
+  C_L = \frac{2mg}{\rho V^2 S}, \quad T = D.
+\]
+Note: Drag $D \propto m$
+(since $V \propto \sqrt{2mg / (\rho S C_L)}$ at fixed $\alpha$)
+
+\textbf{Coordinated Turn} (no sideslip, constant altitude/speed)
+\[ \tan \phi = \frac{V^2}{g R_{\text{turn}}}, \quad L = \frac{mg}{\cos \phi} \]
+
+Stall speed increases by $\sqrt{n}$ where
+$n = \frac{1}{\cos\phi}= \frac{L}{W}$
+load Factor
+(check $C_L < C_{L,\max}$ for margin)
+
+\textbf{Gliding} (Thrust $T=0$)
+\[ \gamma = -\arctan(D/L) \approx -C_D / C_L
+(\text{for small angles}) \]
+\textit{Note:} Max range occurs at max $L/D$
+
+\begin{itemize}
+  \item Best:
+    \textbf{Range} max $C_L/C_D$
+    \textbf{Endurance} max $C_L^{3/2}/C_D$
+  \item \textbf{Stall Speed}
+    $V_{\text{stall}} = \sqrt{\frac{2mg}{\rho S C_{L,\max}}}$
+  \item \textbf{Stall Margin}
+    Required $C_L$ increases in turn, check $C_{L,\max}$
+  \item \textbf{Guidance} Use Ground speed for navigation,
+    Airspeed for control loop (aerodynamic stability)
+\end{itemize}
+
+\subsection{Control Strategies}
+\begin{itemize}
+  \item \textbf{Cascaded Control} Position (Outer) $\to$
+    Velocity/Attitude (Mid) $\to$ Rates (Inner).
+  \item \textbf{Attitude Control} PID often sufficient.
+  \item \textbf{Guidance} Feedforward is useful for wind rejection.
+  \item \textbf{Underactuated} Cannot control all 6 DOFs
+    independently (e.g., rolling creates yaw/sideslip).
+\end{itemize}
+

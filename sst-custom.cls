@@ -96,19 +96,33 @@ arrows.meta }
   ]{geometry}
 }{}
 %-----------------------------------------------------------------
-% Preview
+% Preview 1 column
 %-----------------------------------------------------------------
 \newlength{\previewwidth}
-\setlength\previewwidth{83.5mm}
+% \setlength\previewwidth{83.5mm} % for 3 col
 
 \ifdefstring{\myclass@layout}{preview}{
 
-  \iftoggle{use-tight}{\setlength\previewwidth{73.5mm}}{}
-  % }{% else
-  %   \setlength\previewwidth{83.5mm}}
+  \iftoggle{use-tight}{\setlength\previewwidth{73.5mm}}{} % 73.5 for 4 col
   \RequirePackage[
     paperheight=210mm,
     paperwidth=\previewwidth,
+    top=1mm,
+    bottom=1mm,
+    inner=1mm,
+    outer=1mm,
+    centering
+  ]{geometry}
+}{}
+%-----------------------------------------------------------------
+% Preview 2 column
+%-----------------------------------------------------------------
+\ifdefstring{\myclass@layout}{preview2}{
+
+  \iftoggle{use-tight}{\setlength\previewwidth{73.5mm}}{}
+  \RequirePackage[
+    paperheight=210mm,
+    paperwidth=2\previewwidth+1mm,
     top=1mm,
     bottom=1mm,
     inner=1mm,

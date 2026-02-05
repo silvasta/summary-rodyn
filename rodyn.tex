@@ -6,6 +6,7 @@
 % Document Type
 %-----------------------------------------------------------------
 \documentclass[layout=summary, columns=4,secnumdepth=2,tight]{sst-custom}
+% \documentclass[layout=preview2,columns=2,secnumdepth=2,tight]{sst-custom}
 % \documentclass[layout=preview,secnumdepth=2,tight]{sst-custom}
 %-----------------------------------------------------------------
 
@@ -37,16 +38,12 @@
   \chapter{Dynamics}
   \input{topics/dynamics.tex}
   %-----------------------------------------------------------------
-
+  \chapter{Application in Robotics}
+  \input{topics/legged.tex}
+  \input{topics/rotor.tex}
+  \input{topics/wing.tex}
   % %-----------------------------------------------------------------
-  % \chapter{Legged Robot}
-  % \input{topics/legged.tex}
-  % %-----------------------------------------------------------------
-  % \chapter{Rotorcraft}
-  % \\\lipsum[66]
-  % %-----------------------------------------------------------------
-  % \chapter{Fixed-Wing}
-  % \\\lipsum[66]
+  \input{topics/recipes.tex}
   % %-----------------------------------------------------------------
 
   \iftoggle{do-multicol}{

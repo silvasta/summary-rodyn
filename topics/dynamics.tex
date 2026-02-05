@@ -359,6 +359,13 @@ $E_{fb}$ maps quaternions/Euler to twists.
 
 \ssthl{Exam: Note $\dot{q} \neq u$ due to SO(3).}
 
+Note: Slides often simplify to
+$\mathbf{M}(\mathbf{q})\ddot{\mathbf{q}} +
+\mathbf{h}(\mathbf{q},\dot{\mathbf{q}}) = \mathbf{S}^\top
+\boldsymbol{\tau} + \mathbf{J}_c^\top \mathbf{F}_c$ for $\mathbf{h} =
+\mathbf{b} + \mathbf{g}$. Important property: $\dot{\mathbf{M}} -
+2\mathbf{C}$ is skew-symmetric (passivity for control proofs).
+
 \subsection{Differential Kinematics}
 
 Floating:
@@ -435,4 +442,12 @@ CoM, feet as priorities.
 Inv dyn: $\tau = S^+ (M \dot{u}_d + h - J_c^T F_{c,d}) + N \tau_0$
 
 \ssthl{Exam: $\dot{u}_d$ from tasks; QP for torque opt w/ cones.}
+
+\subsection{Lyapunov Stability for PD Control}
+For $\tau = -K_p \tilde{q} - K_d \dot{q} + g(q)$:\\
+Candidate $V =
+\frac{1}{2} \dot{q}^T M \dot{q}
++ U_g + \frac{1}{2} \tilde{q}^T K_p \tilde{q}$,\\
+$\dot{V} = -\dot{q}^T K_d \dot{q} \leq 0$
+(asymptotically stable if $K_p, K_d > 0$)
 

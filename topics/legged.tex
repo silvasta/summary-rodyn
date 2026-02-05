@@ -1,68 +1,138 @@
-History of Legged Robotics
 
-\section{Quadrupedal Robots}
-L8.37 dotlist 
+\section{Legged Robotics}
 
+\subsection{Generalized Coordinates \& DOF Counting}
+$\mathbf{q} =
+\begin{bmatrix} \mathbf{q}_b \\ \mathbf{q}_j
+\end{bmatrix}$ (dim: $6$ base + $n_j$ joints, e.g., 18 for 12-joint quad) \\
+- Actuated: $\mathbf{q}_j$ (dim: $n_j$, controlled by torques
+$\boldsymbol{\tau}$). \\
+- Unactuated: $\mathbf{q}_b$ (floating base, 6 DOF). \\
+- Contact constraints (point feet, no slip): $3$ per stance foot
+(holonomic: $\mathbf{J}_c \dot{\mathbf{q}} = 0$). \\
+\textbf{Exam trick:} Controllable DOF = total DOF $-$ constraints
+(e.g., 3 stance legs: 18 $-$ 9 = 9; 3 for swing $\to$ 6 internal/force DOF). \\
+- Underactuation degree: unactuated DOF $-$ constraints (if $>0$,
+system underactuated).
 
-\section{High-gear Systems}
-with torque sensor or elasticity (SEA)
+\subsection{Dynamics Equations}
+Core equation for floating-base system:
+\[
+  \mathbf{M}(\mathbf{q})\,\ddot{\mathbf{q}} +
+  \mathbf{b}(\mathbf{q},\dot{\mathbf{q}}) + \mathbf{g}(\mathbf{q}) +
+  \mathbf{J}_c^T \mathbf{F}_c = \mathbf{S}^T \boldsymbol{\tau}
+\]
+\textbf{Trick:} For support-consistent dynamics, project into
+null-space of $\mathbf{J}_c$ (removes $\mathbf{F}_c$ dependency):
+$\mathbf{N}_c = \mathbf{I} - \mathbf{J}_c^+ \mathbf{J}_c$.
 
-\subsection{Actuation principle}
+\subsubsection{Centroidal Momentum (Balance Control)}
 
-- geared motor 
+Centroidal momentum matrix $A_G(q)$:\\
+$\dot{h}_G = A_G \dot{q}
+= \sum m_i (J_{P,i}^T v_i + J_{R,i}^T (I_i \omega_i
++ \omega_i \times I_i \omega_i))$\\
+CoM tasks: Control $\dot{h}_G$ via contacts (underactuated base)
 
-- biomechanic ideas
+\subsection{Contact Constraints}
 
-- Series elastic actuator
+- Velocity level: $\mathbf{J}_c \dot{\mathbf{q}} = 0$ (no motion at
+contact points). \\
+- Acceleration level: $\mathbf{J}_c \ddot{\mathbf{q}} +
+\dot{\mathbf{J}}_c \dot{\mathbf{q}} = 0$. \\
+- Friction: cone constraints on $\mathbf{F}_c$ (e.g.,
+$\|\mathbf{F}_{c,\perp}\| \leq \mu \mathbf{F}_{c,\parallel}$). \\
+\textbf{Exam hint:} Always enforce as highest priority in
+hierarchical control to avoid slippage.
 
-- Exploitation of Passive Dynamics
+\subsection{Inverse Differential Kinematics (Swing Leg Task)}
 
-\section{Low-gear Systems}
-with current control only
+Given constraints $\mathbf{J}_c \dot{\mathbf{q}} = 0$ and task
+$\mathbf{J}_\text{swing} \dot{\mathbf{q}} =
+\dot{\mathbf{r}}_\text{swing}^\text{des}$ \\
+- Stacked (may be singular): $\dot{\mathbf{q}} =
+\begin{bmatrix} \mathbf{J}_c \\ \mathbf{J}_\text{swing}
+\end{bmatrix}^+
+\begin{bmatrix} 0 \\ \dot{\mathbf{r}}_\text{swing}^\text{des}
+\end{bmatrix}$ \\
+- Hierarchical/null-space (preferred, robust):\\
+\[
+  \dot{\mathbf{q}} = \mathbf{J}_c^+ \cdot 0 + \mathbf{N}_c \dot{\mathbf{q}}_0
+  \quad
+  \dot{\mathbf{q}}_0 = (\mathbf{J}_\text{swing} \mathbf{N}_c)^+
+  \dot{\mathbf{r}}_\text{swing}^\text{des}
+\]
+\textbf{Trick:} Use for tasks like swing foot tracking; extend to
+acceleration level for dynamics.
 
-- Low geared high torque motor
+\subsection{Control Strategies}
+Common approaches (by robustness/exam frequency): \\
+1. High-gain joint PD/PID: $\boldsymbol{\tau} = \mathbf{K}_p
+(\mathbf{q}^* - \mathbf{q}) + \mathbf{K}_d (\dot{\mathbf{q}}^* -
+\dot{\mathbf{q}})$ \\
+(poor for impacts due to instability on uneven terrain,
+prefer torque-based for compliance)\\
+2. Inverse dynamics + low-gain: $\boldsymbol{\tau} =
+\boldsymbol{\tau}_{FB} + \boldsymbol{\tau}_{FF}$ \\
+(model-based feedforward) \\
+3. Support-consistent ID: Project desired $\ddot{\mathbf{q}}^*$ into
+$\mathbf{N}_c$ null-space. \\
+4. Task-space control: Regulate tasks (e.g., CoM, feet) via QP. \\
+5. Hierarchical QP: Strict priorities (dynamics/contact highest). \\
+\textbf{Hint:} High-gain fails due to impacts/unmodeled terrain;
+prefer torque control for compliance.
 
+\subsection{Actuator Types}
+\begin{tabular}{l|c|c}
+  Type  & Torque Method & Pros/Cons  \\
+  \hline
+  High-gear +   & Elasticity/sensor & Robust but \\
+  SEA/sensor  &  &   slower response\\
+  \hline
+  Low-gear + & Current $\approx$ torque & Fast, backdrivable  \\
+  current  &  &   impact-resistant \\
+  \hline
+  Hydraulic  & Pressure valve & High power, hard to scale \\
+\end{tabular}
+\textbf{Trick:} Low-gear best for dynamic locomotion (e.g.Mini Cheetah)
 
-L8.47 dotlist 
+\subsection{Whole-Body Control (WBC) Hierarchy}
 
-\subsection{Motor and output inertia}
+Typical priority order: \\
+1. Dynamics: $\mathbf{M} \ddot{\mathbf{q}} + \mathbf{h} =
+\mathbf{J}_c^T \mathbf{f}_c + \mathbf{S}^T \boldsymbol{\tau}$. \\
+2. Contact stability: $\mathbf{J}_c \ddot{\mathbf{q}} +
+\dot{\mathbf{J}}_c \dot{\mathbf{q}} = 0$. \\
+3. Tasks (CoM/base/swing): e.g., $\mathbf{J}_{com} \ddot{\mathbf{q}}
+= \ddot{\mathbf{x}}_{com}^{ref} - \dot{\mathbf{J}}_{com} \dot{\mathbf{q}}$. \\
+4. Regularization: $\min \|\boldsymbol{\tau}\|$ or $\|\mathbf{f}_c\|$. \\
+Torque command:
+\[
+  \boldsymbol{\tau}^{d} =
+  \mathbf{M}_j(\mathbf{q})\ddot{\mathbf{q}}^{*}
+  + \mathbf{h}_j(\mathbf{q},\dot{\mathbf{q}})
+  - \mathbf{J}_{s,j}^{T}(\mathbf{q})\boldsymbol{\lambda}^{*}
+\]
+Final: $\boldsymbol{\tau}^{ref} = \boldsymbol{\tau}^{d} + k_p
+\tilde{\mathbf{q}} + k_d \dot{\tilde{\mathbf{q}}}$.
 
-formulas images
+\subsection{Optimization-Based Control (QP/SLQ)}
+QP for WBC:
+$\min \|\mathbf{A} \mathbf{x} - \mathbf{b}\|^2$
+s.t. constraints (tasks, limits) \\
+Finite-time OCP (SLQ/DDP):
+\[
+  \min_{u(\cdot)} \Phi(x(T)) + \int_{0}^{T} L(x(t),u(t),t)\,dt \quad
+  \text{s.t. constraints}
+\]
+\textbf{Trick:} SLQ linear in horizon length (faster than DDP); use
+for MPC in legged systems.
 
-\section{Hydraulic}
-pressure and/or load cell
-
-L8.53 dotlist 
-
-- Antagonistic actuation possible
-
-\subsection{Pneumatic}
-
-- difficul doing closed loop control
-
-\subsection{acuation principle, othes}
-
-- SMA 
-
-- EAP 
-
-- Piezo-electtric
-
- Issues 
-
-L8.58
-
-\section{Conrol of Legged Robots}
-
-Static vs Dynamic Stability
-
-% TODO: all 4
-\subsection{Contol Concepts}
-
-L8.61
-
-\subsection{Motion planning, high-gain kinematic trajcectory following}
-
-FORMULAS  L8.60/73
-
+\subsection{Exam Tricks \& Hints}
+- Why torque control? Compliance for rough terrain (vs. stiff
+position control). \\
+- Underactuation: Torque can't directly control base; use contacts. \\
+- Learning (RL): Robust to sim2real gaps in contacts/perception. \\
+- Common Q: Derive controllable DOF for given stance; formulate QP
+for multi-task control.
 

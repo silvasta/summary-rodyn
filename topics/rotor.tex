@@ -1,0 +1,140 @@
+\section{Rotorcrafts}
+
+\subsection{Key Assumptions and Modeling}
+\begin{itemize}
+  \item Core assumptions: CoG at body frame origin; rigid, symmetric
+    structure; rigid propellers; neglect fuselage drag; near-hover
+    (hub forces \& rolling moments $\approx 0$).
+  \item Generalized coordinates for aerial robots:
+    \[
+      q = [C_{BW}, v,
+      \omega, \alpha_i, \omega_i]^T \in \text{SO}(3) \times
+      \mathbb{R}^{6+10}
+    \]
+    (incl. base orientation, velocities, arm angles, rotor speeds)
+  \item Newton-Euler equations (full dynamics):
+    \[
+      \sum F_\text{ext}
+      = m(\alpha_i, \omega_i) \, \dot{v}
+      + b(v, \omega, \alpha_i, \omega_i)
+      + g(C_{BW}, \alpha_i, \omega_i)
+    \]
+    \[
+      \sum T_\text{ext}
+      = I_B(\alpha_i, \omega_i) \, \dot{\omega}
+      + b(v, \omega, \alpha_i, \omega_i)
+      + g(C_{BW}, \alpha_i, \omega_i)
+    \]
+  \item Simplified for quadrotor: $q = [\Theta, v, \omega]^T \in
+    \mathbb{R}^3 \times \mathbb{R}^6$.
+  \item Derivation methods: Newton-Euler momentum theory, Lagrange,
+    or virtual work principle.
+\end{itemize}
+
+\subsection{Propulsion and Thrust Models}
+\begin{itemize}
+  \item Thrust and drag torque (hover/low-speed):\\
+    $T_i = b \omega_{p,i}^2$, $Q_i = d \omega_{p,i}^2$
+  \item Classical momentum theory (ideal hover):
+    \[
+      T = 2 \rho A v_i^2, \quad P_{\text{ideal}} = T v_i =
+      \frac{T^{3/2}}{\sqrt{2 \rho A}}.
+    \]
+  \item Figure of Merit: $FM = P_{\text{ideal}} / P_{\text{actual}} < 1$.
+  \item Dependencies: Thrust $T \propto \omega^2$ (independent of
+    forward speed near hover); drag torque $Q \propto \omega^2$.
+\end{itemize}
+
+\subsection{Control Allocation (Quadrotor, X-Configuration)}
+\begin{itemize}
+  \item Virtual inputs:
+    \[
+      \begin{aligned}
+        u_1 &= b(\omega_1^2 + \omega_2^2 + \omega_3^2 + \omega_4^2) &
+        &\text{(collective thrust)}, \\
+        u_2 &= l b (\omega_4^2 - \omega_2^2) & &\text{(roll moment)}, \\
+        u_3 &= l b (\omega_1^2 - \omega_3^2) & &\text{(pitch moment)}, \\
+        u_4 &= d (-\omega_1^2 + \omega_2^2 - \omega_3^2 + \omega_4^2)
+        & &\text{(yaw moment)}.
+      \end{aligned}
+    \]
+  \item Allocation matrix (solve for $\omega_i^2$):
+    \[
+      \begin{bmatrix} \omega_1^2 \\ \omega_2^2 \\ \omega_3^2 \\ \omega_4^2
+      \end{bmatrix}
+      = \frac{1}{4}
+      \begin{bmatrix}
+        \frac{1}{b}  &  0         & \frac{1}{lb}  & -\frac{1}{d} \\
+        \frac{1}{b}  & -\frac{1}{lb} &  0         &  \frac{1}{d} \\
+        \frac{1}{b}  &  0         & -\frac{1}{lb} & -\frac{1}{d} \\
+        \frac{1}{b}  &  \frac{1}{lb} &  0         &  \frac{1}{d}
+      \end{bmatrix}
+      \begin{bmatrix} u_1 \\ u_2 \\ u_3 \\ u_4
+      \end{bmatrix}.
+    \]
+    Note: For + configuration, adjust signs
+    (e.g., $u_2 = l b (\omega_1^2 + \omega_3^2 - \omega_2^2 - \omega_4^2))$
+    exams often specify X-config.
+  \item For over-actuated systems (e.g., hexacopter): Multiple
+    solutions; choose minimum-energy (min rotor-speed norm) or min
+    max($\omega_i$).
+\end{itemize}
+
+\subsection{Attitude Dynamics (Linearized near Hover)}
+\begin{itemize}
+  \item Linearized equations:
+    \[
+      \ddot{\phi} \approx \frac{u_2}{I_{xx}} = \frac{l b}{I_{xx}}
+      (\omega_4^2 - \omega_2^2), \quad \ddot{\theta} \approx
+      \frac{u_3}{I_{yy}}, \quad \ddot{\psi} \approx \frac{u_4}{I_{zz}}.
+    \]
+  \item PD attitude controller (decoupled double integrators):
+    \[
+      \begin{aligned}
+        u_2 &= k_{p\phi}(\phi_d - \phi) - k_{d\phi} \dot{\phi}, \\
+        u_3 &= k_{p\theta}(\theta_d - \theta) - k_{d\theta} \dot{\theta}, \\
+        u_4 &= k_{p\psi}(\psi_d - \psi) - k_{d\psi} \dot{\psi}.
+      \end{aligned}
+    \]
+  \item Tuning hint: $k_p$ sets rise time/natural frequency; $k_d$
+    sets damping (avoid large $k_d$ to prevent saturation).
+\end{itemize}
+
+\subsection{Position and Altitude Control}
+\begin{itemize}
+  \item Altitude (small-angle approx.):
+    \[
+      \ddot{z} \approx g - u_1 m^{-1} \cos\phi \cos\theta
+    \]
+    \[
+      u_1 = (m ( g - k_{p_z}(z_d - z) - k_{d_z} \dot{z}))
+      (\cos\phi \cos\theta)^{-1}
+    \]
+  \item Thrust vector control (desired $^E\mathbf{T} = [T_x, T_y, T_z]^T$):
+    \[
+      u_1 = \| {^E\mathbf{T}} \|,
+      \theta_d = \arcsin\left(\frac{T_x}{u_1}\right),
+      \phi_d = -\arcsin\left(\frac{T_y}{u_1}\right)
+    \]
+  \item Forward acceleration: $\propto \sin\theta$ or $\sin\phi$
+    (indep. of yaw $\psi$)
+\end{itemize}
+
+\subsubsection{Tricks and Hints}
+\begin{itemize}
+  \item Singularities: Euler angles singular at $\theta = \pm
+    90^\circ$; use quaternions for aggressive maneuvers.
+  \item Derivatives: Near hover, $\dot{\phi} \approx p$,
+    $\dot{\theta} \approx q$, $\dot{\psi} \approx r$.
+  \item Linearization: Small-angle approx. $\sin\phi \approx \phi$,
+    $\cos\phi \approx 1$.
+  \item Power: $\propto \omega^3$; minimize max($\omega_i$) over sum
+    $\omega_i^2$.
+  \item Underactuation: Position/attitude coupled; check config. (X
+    vs. +) for allocation.
+  \item Common pitfalls: Division by $\cos\phi \cos\theta$ (numerical
+    issues); neglect drag in hover.
+  \item Thrust vector: arcsin can cause singularities at high tilts;
+    use quaternions for large angles (as in slides).
+\end{itemize}
+
