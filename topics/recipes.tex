@@ -1,121 +1,181 @@
 \section{Recipes - Steps to Solve Common Tasks}
 
-\subsection{1. System Analysis \& DoF Counting (General/Legged Systems)}
-\textbf{Start every problem with this to identify underactuation and
-constraints (extends legged.tex DoF concepts).}
-\begin{itemize}
-  \item \textbf{Generalized Coordinates ($n$)}: Size of $q$ (e.g.,
-      fixed base: $n = n_{joints}$; 3D floating base: $n = 6 +
-    n_{joints}$; planar: $n = 3 + n_{joints}$).
-  \item \textbf{Constraints ($n_c$)}: Per contact (e.g., point
-    no-slip: 3 in 3D, 2 in 2D; surface: 6 in 3D).
-  \item \textbf{Uncontrollable DoFs}: $\dim(\text{Base}) -
-    \text{rank}(J_{contact})$ (e.g., planar base with 1 point contact:
-    $3 - 2 = 1$ uncontrollable).
-  \item \textbf{Controllable DoFs}: Total $n - n_c$ (subtract
-    unactuated base if underactuated).
-\end{itemize}
+\subsection{Kinematics}
 
-\subsection{2. Geometric Jacobian Derivation (Serial Chains)}
-\textbf{To relate $\dot{q}$ to end-effector twist (merges both lists;
-extends kinematics.tex with step-by-step construction).}
-\begin{itemize}
-  \item Assign DH parameters/frames.
-  \item For revolute joint $i$: $J_{P,i} = z_{i-1} \times (r_E -
-    r_{i-1})$, $J_{R,i} = z_{i-1}$.
-  \item For prismatic: $J_{P,i} = z_{i-1}$, $J_{R,i} = 0$.
-  \item Total $J =
-    \begin{bmatrix} J_P \\ J_R
-    \end{bmatrix}$.
-  \item Singularity: $\det(J J^T)=0$; manipulability $\mu = \sqrt{\det(J J^T)}$.
-\end{itemize}
+Consider a 2D mobile manipulator robot with a wheeled base
+(horizontal position $x_b$), a prismatic joint for height ($z_l$),
+and a 3-joint arm ($\phi_1, \phi_2, \phi_3$).
+Links have lengths
+$l_1, l_2, l_3$.
+\\
+Generalized coordinates: $q = (x_b, z_l, \phi_1,
+\phi_2, \phi_3)^T$.
 
-\subsection{3. Inverse Kinematics (Velocity Level, Single/Multi-Task)}
-\textbf{To find $\dot{q}$ for desired task velocity (merges both
-lists; extends kinematics.tex with hierarchical details).}
-\begin{itemize}
-  \item Single task: $\dot{q} = J^{\dagger} v_{task}$.
-  \item Hierarchical (null-space): Primary $J_1, v_1$: $\dot{q} =
-    J_1^{\dagger} v_1 + (I - J_1^{\dagger} J_1) \dot{q}_{null}$,
-    where $\dot{q}_{null} = J_2^{\dagger} (v_2 - J_2 J_1^{\dagger} v_1)$.
-  \item Multi-task: $\dot{q} = \sum N_i \dot{q}_i$, $\dot{q}_i = (J_i
-    N_i)^+ (v_i^* - J_i \sum_{k<i} \dot{q}_k)$.
-  \item Near singularity: Damped LS $J^* = J^T (JJ^T + \lambda I)^{-1}$.
-\end{itemize}
+\begin{enumerate}
+  \item Write the forward kinematics for the end-effector position
+    $r_e = (x_e, z_e)^T$ in the world frame.
 
-\subsection{4. Derive EoM (Lagrange for Fixed-Base Arms)}
-\textbf{For 2R/3R manipulators (from List 1; extends dynamics.tex
-with explicit computation steps).}
-\begin{itemize}
-  \item Kinetic $T = \sum \frac{1}{2} m_i v_i^2 + \frac{1}{2}
-    \omega_i^T I_i \omega_i$.
-  \item Potential $U = \sum m_i g h_i$.
-  \item $\frac{d}{dt} (\partial L / \partial \dot{q}_k) - \partial L
-    / \partial q_k = \tau_k$ ($L=T-U$).
-  \item Compute M, C (Christoffel: $C_{kj} = \frac{1}{2} \sum_i
-      (\partial M_{kj}/\partial q_i + \partial M_{ki}/\partial q_j -
-    \partial M_{ij}/\partial q_k) \dot{q}_i$), g.
-\end{itemize}
+  \item Derive the geometric Jacobian $J_e(q)$ for the
+    end-effector linear velocity.
 
-\subsection{5. Inverse Dynamics (Joint/Task Space)}
-\textbf{To compute $\tau$ for desired motion (from List 2; extends
-dynamics.tex with force and task handling).}
-\begin{itemize}
-  \item Joint space: $\tau = M(q)(\ddot{q}^* + K_p e + K_d \dot{e}) +
-    h(q, \dot{q})$ ($h = C\dot{q} + g$).
-  \item With external force: $\tau_{total} = \tau_{motion} + J^T F_{ext}$.
-  \item Task space: Solve $\ddot{q}_{des} = J^{\dagger}(\ddot{x}^* -
-    \dot{J}\dot{q})$, then plug into EoM.
-\end{itemize}
+  \item Provide a singular configuration and explain the lost
+    degree of freedom.
 
-\subsection{6. Floating Base Dynamics \& Contact Consistency}
-\textbf{For underactuated systems with contacts (from List 2; extends
-dynamics.tex and legged.tex with projection steps).}
-\begin{itemize}
-  \item Full EoM: $M \dot{u} + h = S^T \tau + J_c^T F_c$.
-  \item Constraint: $J_c \dot{u} = -\dot{J}_c u$ (no slip).
-  \item Projected dynamics: Use projector $P$ ($P J_c^T = 0$): $P(M
-    \dot{u} + h) = P S^T \tau$.
-  \item Note: Eliminates $F_c$ for feasibility checks.
-\end{itemize}
+  \item For a desired end-effector velocity $v_e^* = (1, 0)^T$
+    m/s, compute the minimal-norm joint velocity $\dot{q}^*$ using
+    pseudoinverse (assume non-singular $q$).
 
-\subsection{7. Hierarchical Optimization (QP) Formulation}
-\textbf{For legged/floating-base control (merges both lists; extends
-legged.tex and dynamics.tex with matrix setup).}
-$\min_{\ddot{q}, \tau, f_c} \|\tau\|^2 + \epsilon \|\ddot{q}\|^2 +
-\epsilon \|f_c\|^2$ s.t.\\
-- Dynamics: $M \ddot{q} + h = S^T \tau + J_c^T f_c$.\\
-- Contact: $J_c \ddot{q} + \dot{J}_c \dot{q} = 0$.\\
-- Task (e.g., CoM): $J_{com} \ddot{q} + \dot{J}_{com} \dot{q} =
-\ddot{x}_{com}^*$.\\
-- Bounds: $|\tau| \leq \tau_{max}$, friction cone $\|f_{c,\perp}\|
-\leq \mu f_{c,z}$.\\
-\textbf{Matrix form}: Stack into $A x = b$ (e.g., $x = [\dot{u}^T,
-\tau^T, F_c^T]^T$).
+  \item The system is redundant. Formulate a multi-task control
+    where primary task is $v_e^*$ and secondary task is to keep
+    $\dot{\phi_1} = 0$ and $\dot{z_l} = 0$. Use null-space projection for
+    equal priority.
 
-\subsection{8. Multirotor Control Allocation \& Hover}
-\textbf{For quad/hexacopters (merges both lists; extends rotor.tex
-with tilt and over-actuated cases).}
-\begin{itemize}
-  \item Hover: Total $T = mg$, per rotor $\omega_i = \sqrt{T/(4 b)}$ (quad).
-  \item Allocation matrix: Solve $A \omega^2 = [T, M_x, M_y, M_z]^T$
-    (pseudo-inverse for over-actuated; min $\sum \omega^2$).
-  \item Tilt for accel: $\theta_d = \arcsin(a_x / g)$, check drag $D
-    \propto \omega^2$.
-  \item Yaw signs: Positive $d$ for CCW rotors (CW torque on body).
-\end{itemize}
+  \item If secondary task has higher priority, how would you
+    modify the control law?
 
-\subsection{9. Fixed-Wing Performance \& Steady States}
-\textbf{For level flight and turns (merges both lists; extends
-wing.tex with optimal velocities and safety checks).}
-\begin{itemize}
-  \item Steady level: $L = mg$, $T = D = \frac{1}{2} \rho v^2 S C_D$;
-    $C_L = \frac{2mg}{\rho v^2 S}$.
-  \item Optimal: Max range at max $C_L/C_D$; max endurance at max
-    $C_L^{1.5}/C_D$; gliding angle $\tan \gamma = (L/D)^{-1}$.
-  \item Coordinated turn: $\tan \phi = \frac{v^2}{g R}$, load
-    $n=1/\cos\phi$; required $C_L = n (2 m g / (\rho v^2 S))$.
-  \item Safety: $C_L < C_{L,max}$ (stall check); min $R$ at max bank
-    without stall.
-\end{itemize}
+  \item Discuss how to handle singularities using damped least-squares.
+\end{enumerate}
+
+\subsubsection{Solution}
+\begin{enumerate}
+  \item
+    $x_e = x_b + l_1 \cos\phi_1 + l_2 \cos(\phi_1 + \phi_2) + l_3
+    \cos(\phi_1 + \phi_2 + \phi_3)$
+
+    $z_e = z_l + l_1 \sin\phi_1 + l_2 \sin(\phi_1 + \phi_2) + l_3
+    \sin(\phi_1 + \phi_2 + \phi_3)$
+  \item $J_e =\left[
+      \begin{matrix}
+        1 & 0 \\ 0 & 1
+      \end{matrix}\right $
+
+      $
+      \left
+      \begin{matrix}
+        -l_1 s_1 - l_2 s_{12} - l_3 s_{123} & -l_2 s_{12} - l_3
+        s_{123} & -l_3 s_{123} \\
+        l_1 c_1 + l_2 c_{12} + l_3 c_{123} & l_2 c_{12} + l_3 c_{123}
+        & l_3 c_{123}
+    \end{matrix}\right]
+    $
+    \\
+    (where $s_1 = \sin\phi_1$, etc.)
+
+  \item E.g., $\phi_2 = \phi_3 = 0$, arm fully extended; loses control in
+    radial direction.
+
+  \item $\dot{q}^* = J_e^+ v_e^*$, where $J_e^+ = J_e^T (J_e J_e^T)^{-1}$.
+
+  \item Stacked Jacobian $J =
+    \begin{bmatrix} J_e \\ J_{sec}
+    \end{bmatrix}$, where \\
+    $J_{sec} =
+    \begin{bmatrix} 0 & 0 & 1 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0
+    \end{bmatrix}$, desired $\dot{q}^* = J^+
+    \begin{bmatrix} v_e^* \\ 0
+    \end{bmatrix}$
+
+  \item Prioritize secondary:\\
+    $\dot{q}^* = J_{sec}^+ 0 + N_{sec} J_e^+
+    (v_e^* - J_e J_{sec}^+ 0)$,\\
+    where $N_{sec} = I - J_{sec}^+ J_{sec}$.
+
+  \item Use damped pseudoinverse $J^+ = J^T (J J^T + \lambda I)^{-1}$ to
+    avoid high velocities near singularities.
+\end{enumerate}
+
+\subsection{Dynamics}
+
+The equations of motion are $M(q) \ddot{q} + C(q, \dot{q}) \dot{q} +
+g(q) = \tau$.
+
+1.  Derive a joint-space PD controller with gravity
+compensation for tracking $q^*$.
+
+2.  Formulate an inverse dynamics control law for desired
+acceleration $\ddot{q}^*$.
+
+3.  For a floating-base version (add base orientation
+$\theta_b$), explain why $M$ is not full rank.
+
+4.  Propose a task-space impedance controller for end-effector
+force tracking.
+
+5.  Discuss redundancy resolution in torque space for
+over-actuated systems.
+\subsubsection{Solution}
+
+1. $\tau = g(q) + K_p (q^* - q) - K_d \dot{q}$.
+
+2. $\tau = M \ddot{q}^* + C \dot{q} + g$.
+
+3. Floating base has unactuated DOFs (linear momentum conservation);
+$M$ has rank deficiency.
+
+4. $\tau = J_e^T (K_p \Delta r_e - K_d v_e + f^*) + g$, where $\Delta
+r_e = r_e^* - r_e$.
+
+5. Use null space: $\tau = \tau_{task} + N \tau_0$, where $N = I -
+J^+ J$, $\tau_0$ optimizes secondary objectives like joint limits.
+
+\subsection{Legged Robots}
+
+Consider a quadruped with 3 DOF per leg, point feet, two feet in contact.
+
+1. (3 pts) What is the dimension of the null space for joint torques?
+
+2. (4 pts) Formulate the contact-consistent dynamics and how to
+project accelerations.
+
+3. (3 pts) Describe a simple balance controller using CoM projection.
+\subsubsection{Solution}
+
+1. Total DOF: 6 (floating base) + 12 (joints) = 18\\
+constraints: 2 feet × 3 = 6; null space dim = 18 - (18 - 6) = 6 \\
+(redundancy in torque)
+
+2. $M \ddot{q} + h = S \tau + J_c^T \lambda$
+\\project to consistent
+$\ddot{q} = (I - J_c^+ J_c) \ddot{q}_0 + J_c^+ \dot{J_c} \dot{q}$
+
+3. Control torques to keep projected CoM within support polygon,
+e.g., via virtual model control.
+
+\subsection{Rotorcraft}
+
+For a quadcopter.
+
+1. (3 pts) Write the thrust allocation for position control.
+
+2. (3 pts) Explain coupling between position and attitude.
+
+3. (2 pts) Why are feedforward terms useful in tracking?
+\subsubsection{Solution}
+
+1. Total thrust $f = m (\ddot{z}^* + g)$, moments from differential
+rotor speeds.
+
+2. Underactuated: attitude must tilt to generate horizontal forces.
+
+3. Compensate nonlinearities for better tracking without relying
+solely on feedback.
+
+\subsection{Fixed-Wing Aircraft}
+
+For a fixed-wing UAV in level flight.
+
+1. (3 pts) Derive the required bank angle for a coordinated turn of
+radius R at speed V.
+
+2. (2 pts) How does wind affect guidance?
+
+3. (2 pts) Explain airspeed vs. groundspeed in control.
+
+\subsubsection{Solution}
+
+1. $\phi = \tan^{-1}(V^2 / (g R))$.
+
+2. Wind disturbs position; guidance uses groundspeed feedback for correction.
+
+3. Airspeed for aerodynamic stability, groundspeed for navigation.
 

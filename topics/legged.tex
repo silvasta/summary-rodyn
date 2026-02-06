@@ -1,19 +1,47 @@
 
 \section{Legged Robotics}
 
-\subsection{Generalized Coordinates \& DOF Counting}
-$\mathbf{q} =
-\begin{bmatrix} \mathbf{q}_b \\ \mathbf{q}_j
-\end{bmatrix}$ (dim: $6$ base + $n_j$ joints, e.g., 18 for 12-joint quad) \\
-- Actuated: $\mathbf{q}_j$ (dim: $n_j$, controlled by torques
-$\boldsymbol{\tau}$). \\
-- Unactuated: $\mathbf{q}_b$ (floating base, 6 DOF). \\
-- Contact constraints (point feet, no slip): $3$ per stance foot
-(holonomic: $\mathbf{J}_c \dot{\mathbf{q}} = 0$). \\
-\textbf{Exam trick:} Controllable DOF = total DOF $-$ constraints
-(e.g., 3 stance legs: 18 $-$ 9 = 9; 3 for swing $\to$ 6 internal/force DOF). \\
-- Underactuation degree: unactuated DOF $-$ constraints (if $>0$,
-system underactuated).
+\subsection{System Analysis and DoF}
+\textbf{Generalized Coordinates}
+\\
+(Separated into unactuated base $\mathbf{q}_b$
+and actuated joints $\mathbf{q}_j$)
+\[
+  \mathbf{q} =
+  \begin{bmatrix} \mathbf{q}_b \\ \mathbf{q}_j
+  \end{bmatrix} \quad
+  \text{dims:}
+  \begin{cases}
+    \text{Fixed Base:} & n = n_j \\
+    \text{Planar (2D):} & n = 3 + n_j \\
+    \text{Floating (3D):} & n = 6 + n_j
+  \end{cases}
+\]
+\textbf{Contact Constraints} $n_c = \sum n_{c,i}$
+\begin{itemize}
+  \item \textbf{Point Contact} no-slip:
+    $n_c=3$ (3D) or $n_c=2$ (2D) per foot
+  \item \textbf{Surface Contact} $n_c=6$ (3D) per foot
+\end{itemize}
+
+\textbf{Mobility and Actuation Analysis}
+\begin{itemize}
+  \item \textbf{Uncontrollable DoF}
+    $\dim(\mathbf{q}_b) - \text{rank}(\mathbf{J}_\text{contact})$\\
+    (e.g., Planar base + 1 point contact: $3 - 2 = 1$ uncontrollable)
+  \item \textbf{Degree of Underactuation}
+    $\dim(\mathbf{q}_b) - n_c$\\
+    (If $>0$, system is underactuated)
+\end{itemize}
+
+\textbf{System Mobility (Net DoF)}
+$ \delta_{sys} = n_{total} - n_c $
+
+Example: Quadruped, $n=18$
+\begin{itemize}
+  \item 3 Stance Legs (Point): $n_c = 3 \times 3 = 9$
+  \item Net DoF: $18 - 9 = 9$
+\end{itemize}
 
 \subsection{Dynamics Equations}
 Core equation for floating-base system:
@@ -36,12 +64,13 @@ CoM tasks: Control $\dot{h}_G$ via contacts (underactuated base)
 
 \subsection{Contact Constraints}
 
+Underactuation: Torque can't directly control base, use contacts. \\
 - Velocity level: $\mathbf{J}_c \dot{\mathbf{q}} = 0$ (no motion at
-contact points). \\
+contact points) \\
 - Acceleration level: $\mathbf{J}_c \ddot{\mathbf{q}} +
-\dot{\mathbf{J}}_c \dot{\mathbf{q}} = 0$. \\
+\dot{\mathbf{J}}_c \dot{\mathbf{q}} = 0$ \\
 - Friction: cone constraints on $\mathbf{F}_c$ (e.g.,
-$\|\mathbf{F}_{c,\perp}\| \leq \mu \mathbf{F}_{c,\parallel}$). \\
+$\|\mathbf{F}_{c,\perp}\| \leq \mu \mathbf{F}_{c,\parallel}$) \\
 \textbf{Exam hint:} Always enforce as highest priority in
 hierarchical control to avoid slippage.
 
@@ -94,7 +123,9 @@ prefer torque control for compliance.
   \hline
   Hydraulic  & Pressure valve & High power, hard to scale \\
 \end{tabular}
-\textbf{Trick:} Low-gear best for dynamic locomotion (e.g.Mini Cheetah)
+- Low-gear best for dynamic locomotion (e.g.Mini Cheetah)\\
+- Why torque control? Compliance for rough terrain
+(vs. stiff position control). \\
 
 \subsection{Whole-Body Control (WBC) Hierarchy}
 
@@ -127,12 +158,4 @@ Finite-time OCP (SLQ/DDP):
 \]
 \textbf{Trick:} SLQ linear in horizon length (faster than DDP); use
 for MPC in legged systems.
-
-\subsection{Exam Tricks \& Hints}
-- Why torque control? Compliance for rough terrain (vs. stiff
-position control). \\
-- Underactuation: Torque can't directly control base; use contacts. \\
-- Learning (RL): Robust to sim2real gaps in contacts/perception. \\
-- Common Q: Derive controllable DOF for given stance; formulate QP
-for multi-task control.
 

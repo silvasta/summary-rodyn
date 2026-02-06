@@ -121,7 +121,7 @@ arrows.meta }
 
   \iftoggle{use-tight}{\setlength\previewwidth{73.5mm}}{}
   \RequirePackage[
-    paperheight=210mm,
+    paperheight=297mm,
     paperwidth=2\previewwidth+1mm,
     top=1mm,
     bottom=1mm,
@@ -320,5 +320,7 @@ arrows.meta }
 %-----------------------------------------------------------------
 \DeclareMathOperator{\argmin}{argmin}
 \DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\trace}{trace}
+
 \DeclareMathOperator{\pre}{pre}
 

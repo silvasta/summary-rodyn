@@ -43,6 +43,12 @@
   \item Figure of Merit: $FM = P_{\text{ideal}} / P_{\text{actual}} < 1$.
   \item Dependencies: Thrust $T \propto \omega^2$ (independent of
     forward speed near hover); drag torque $Q \propto \omega^2$.
+  \item Hover: Total $T = mg$, per rotor $\omega_i = \sqrt{T/(4 b)}$ (quad).
+  \item Allocation matrix: Solve $A \omega^2 = [T, M_x, M_y, M_z]^T$
+    (pseudo-inverse for over-actuated; min $\sum \omega^2$).
+  \item Tilt for accel: $\theta_d = \arcsin(a_x / g)$, check drag $D
+    \propto \omega^2$.
+  \item Yaw signs: Positive $d$ for CCW rotors (CW torque on body).
 \end{itemize}
 
 \subsection{Control Allocation (Quadrotor, X-Configuration)}
